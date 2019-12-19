@@ -1,2 +1,2 @@
-# djog_rust
+# DJOG Rust
 The Rust language programming repo
