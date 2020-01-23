@@ -6,7 +6,7 @@ extern crate piston;
 use glutin_window::GlutinWindow as Window;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
-use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
+use piston::input::{ButtonEvent, RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
 
 pub struct App {
@@ -44,6 +44,11 @@ impl App {
         // Rotate 2 radians per second.
         self.rotation += 2.0 * args.dt;
     }
+
+    fn input(&mut self, input: &ButtonArgs)
+    {
+
+    }
 }
 
 fn main() {
@@ -65,12 +70,16 @@ fn main() {
 
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
-        if let Some(args) = e.render_args() {
-            app.render(&args);
+        if let Some(args) = e.button_args() {
+            app.input(&args);
         }
 
         if let Some(args) = e.update_args() {
             app.update(&args);
+        }
+
+        if let Some(args) = e.render_args() {
+            app.render(&args);
         }
     }
 }
