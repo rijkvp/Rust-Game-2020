@@ -2,8 +2,8 @@
 
 The official git repo of dRUSTig (2020).
 
-![Our Logo](pictures\rust_repo.png)
-![Our Team Logo](pictures\team_dRUSTig_small.png)
+![Our Logo](pictures/rust_repo.png)
+![Our Team Logo](pictures/team_dRUSTig_small.png)
 
 ## Goal
 
