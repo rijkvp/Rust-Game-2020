@@ -45,10 +45,10 @@ impl App {
         self.rotation += 2.0 * args.dt;
     }
 
-    fn input(&mut self, input: &ButtonArgs)
-    {
+    // fn input(&mut self, input: &ButtonArgs)
+    // {
 
-    }
+    // }
 }
 
 fn main() {
@@ -70,9 +70,9 @@ fn main() {
 
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
-        if let Some(args) = e.button_args() {
-            app.input(&args);
-        }
+        // if let Some(args) = e.button_args() {
+        //     app.input(&args);
+        // }
 
         if let Some(args) = e.update_args() {
             app.update(&args);
