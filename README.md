@@ -1,4 +1,4 @@
-# DJOG Rust
+# Rust Project 2020
 
 The official git repo of dRUSTig (2020).
 
@@ -8,4 +8,4 @@ The official git repo of dRUSTig (2020).
 ## Goal
 
 We are going to create something in the Rust Programming language.
-We haven't diceded anything else yet.
+We haven't decided anything else yet.
