@@ -1,5 +1,25 @@
 # Installing
 
+Follow these instuctions to install Rust & SDL2 needed for building.
+
+
+# Linux
+
+## Download the Rust Programming language
+
+1. Download Rust by using the command from [the official Rust download page](https://www.rust-lang.org/tools/install).
+2. Type '1' &  hit enter to proceed with the installation.
+
+## Download SDL2
+
+`sudo apt-get install libsdl2-dev`
+
+## Run the project
+
+`cargo run`
+
+# Windows
+
 These are the installation instructions to install Rust & run the project on a Windows computer using the VS build tools.
 
 ## Download the Rust Programming language
@@ -20,10 +40,10 @@ These are the installation instructions to install Rust & run the project on a W
 
 ## Download SDL2 libs
 
-1. Download SDL2-devel-2.0.x-mingw.tar.gz from [the SDL website](http://www.libsdl.org/download-2.0.php).
+1. Download SDL2-devel-2.0.x-VC.zip from [the SDL website](http://www.libsdl.org/download-2.0.php).
 2. Unpack to a folder of your choosing (You can delete it afterwards).
 3. Copy all .lib files from:
-`SDL2-devel-2.0.x-mingw\SDL2-2.0.x\x86_64-w64-mingw32\lib`
+`SDL2-devel-2.0.x-VC\SDL2-2.0.x\lib\x64\`
 to
 `C:\Users\{Your Username}\.rustup\toolchains\{current toolchain}\lib\rustlib\{current toolchain}\lib`.
 
