@@ -16,3 +16,11 @@ path = "src/main.rs"
 [[bin]]
 name = "demo"
 path = "src/demo.rs"
+
+[[bin]]
+name = "demo2"
+path = "src/demo2.rs"
+
+[[bin]]
+name = "game"
+path = "src/game.rs"
