@@ -8,3 +8,11 @@ edition = "2018"
 
 [dependencies]
 sdl2 = "0.33"
+
+[[bin]]
+name = "hello_world"
+path = "src/main.rs"
+
+[[bin]]
+name = "demo"
+path = "src/demo.rs"
