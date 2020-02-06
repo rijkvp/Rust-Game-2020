@@ -9,3 +9,5 @@ The official git repo of dRUSTig (2020).
 
 We are going to create something in the Rust Programming language.
 We haven't decided anything else yet.
+
+Installation instuctions for windows: [install.md](docs/install.md).
