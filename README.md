@@ -1,5 +1,7 @@
 # Rust Project 2020
 
+![Rust](https://github.com/djog/Rust_Project_2020/workflows/Rust/badge.svg)
+
 The official git repo of dRUSTig (2020).
 
 ![Our Logo](pictures/rust_repo.png)
