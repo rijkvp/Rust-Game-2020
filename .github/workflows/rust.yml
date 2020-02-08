@@ -5,9 +5,10 @@ on: [push]
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
+    - run: sudo apt-get install libsdl2-dev
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
