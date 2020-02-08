@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Install libraries
     - run: sudo apt-get install libsdl2-dev
     - uses: actions/checkout@v2
     - name: Build
