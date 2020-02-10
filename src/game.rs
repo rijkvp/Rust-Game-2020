@@ -5,7 +5,7 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::{Point, Rect};
 use std::time::Duration;
-use sdl2::pixels::{Color, PixelFormatEnum};
+use sdl2::pixels::{Color };
 
 pub fn main() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
@@ -31,6 +31,9 @@ pub fn main() -> Result<(), String> {
 
     let mut move_left = false;
     let mut move_right = false;
+    let mut move_up = false;
+    let mut move_down = false;
+
     const FPS: f64 = 60.0;
     const DELTA_TIME: f64 = 1.0 / FPS;
 
@@ -53,6 +56,18 @@ pub fn main() -> Result<(), String> {
                 Event::KeyUp { keycode: Some(Keycode::Right), .. } => {
                     move_right = false;
                 },
+                Event::KeyDown { keycode: Some(Keycode::Up), .. } => {
+                    move_up = true;
+                },
+                Event::KeyUp { keycode: Some(Keycode::Up), .. } => {
+                    move_up = false;
+                },
+                Event::KeyDown { keycode: Some(Keycode::Down), .. } => {
+                    move_down = true;
+                },
+                Event::KeyUp { keycode: Some(Keycode::Down), .. } => {
+                    move_down = false;
+                },
                 Event::MouseMotion {..} => {},
                 e => {
                     println!("{:?}", e);
@@ -68,7 +83,14 @@ pub fn main() -> Result<(), String> {
             player_point.x -= (200.0 * DELTA_TIME) as i32;
         }
 
+        if move_up {
+            player_point.y -= (200.0 * DELTA_TIME) as i32;
+        }
+        else if move_down {
+            player_point.y += (200.0 * DELTA_TIME) as i32;
+        }
 
+        // Draw
         canvas.set_draw_color(Color::RGBA(80, 80, 80, 255));
         canvas.clear();
 
@@ -76,17 +98,16 @@ pub fn main() -> Result<(), String> {
         canvas.set_draw_color(Color::RGBA(255, 50, 50, 255));
         canvas.fill_rect(player_rect).map_err(|e| e.to_string())?;
 
-        let mut dirX: f64 = (player_point.x - enemy_point.x) as f64;
-        let mut dirY: f64 = (player_point.y - enemy_point.y) as f64;
-        use std::num;
-        let sqr: f64 = dirX * dirX + dirY * dirY;
+        let mut dir_x: f64 = (player_point.x - enemy_point.x) as f64;
+        let mut dir_y: f64 = (player_point.y - enemy_point.y) as f64;
+        let sqr: f64 = dir_x * dir_x + dir_y * dir_y;
         let mag = sqr.sqrt();
-        dirX /= mag;
-        dirY /= mag;
-        dirX *= 100.0 * DELTA_TIME;
-        dirY *= 100.0 * DELTA_TIME;
-        enemy_point.x += dirX as i32;
-        enemy_point.y += dirY as i32;
+        dir_x /= mag;
+        dir_y /= mag;
+        dir_x *= 100.0 * DELTA_TIME;
+        dir_y *= 100.0 * DELTA_TIME;
+        enemy_point.x += dir_x as i32;
+        enemy_point.y += dir_y as i32;
 
         canvas.copy(&texture, None, Rect::from_center(enemy_point, 64, 64))?;
         canvas.present();
