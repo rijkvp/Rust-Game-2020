@@ -77,13 +77,12 @@ impl EventManager
             else if self.move_left { -1.0 }
             else { 0.0 }
         };
-        let mut y = {
+        let y = {
             if self.move_up && self.move_down { 0.0 }
             else if self.move_up { 1.0 }
             else if self.move_down { -1.0 }
             else { 0.0 }
         };
-        y = -y;
         Vector2 { x, y }
     }
 }

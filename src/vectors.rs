@@ -40,6 +40,11 @@ impl Vector2
       }
     }
   }
+
+  pub fn lerp(a: Vector2, b: Vector2, t: f32) -> Vector2
+  {
+    return a + (b-a) * t;
+  }
 }
 
 impl ops::Add<Vector2> for Vector2
