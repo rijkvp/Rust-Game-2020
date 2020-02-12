@@ -1,3 +1,5 @@
+use std::ops::SubAssign;
+use std::ops::AddAssign;
 use std::ops;
 use sdl2::rect::{Point};
 
@@ -10,6 +12,14 @@ pub struct Vector2
 
 impl Vector2
 {
+  pub fn zero() -> Vector2
+  {
+    Vector2 {
+      x: 0.0,
+      y: 0.0,
+    }
+  }
+
   pub fn sqr_magnitude(&self) -> f32
   {
     return self.x * self.x + self.y * self.y;
@@ -19,7 +29,8 @@ impl Vector2
   {
     return self.sqr_magnitude().sqrt();
   }
-
+  
+  #[allow(dead_code)]
   pub fn to_point(&self) -> Point
   {
     return Point::new(self.x as i32, self.y as i32);
@@ -58,6 +69,15 @@ impl ops::Add<Vector2> for Vector2
   }
 }
 
+impl AddAssign for Vector2 {
+    fn add_assign(&mut self, other: Self) {
+        *self = Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        };
+    }
+}
+
 impl ops::Sub<Vector2> for Vector2
 {
   type Output = Vector2;
@@ -66,6 +86,15 @@ impl ops::Sub<Vector2> for Vector2
       x: self.x - rhs.x,
       y: self.y - rhs.y,
     }
+  }
+}
+
+impl SubAssign for Vector2 {
+  fn sub_assign(&mut self, other: Self) {
+      *self = Self {
+          x: self.x + other.x,
+          y: self.y + other.y,
+      };
   }
 }
 

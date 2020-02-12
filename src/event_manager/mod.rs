@@ -1,6 +1,7 @@
 use sdl2::EventPump;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
+use sdl2::mouse::MouseButton;
 
 use crate::vectors;
 use crate::vectors::Vector2;
@@ -13,6 +14,8 @@ pub struct EventManager
     move_up: bool,
     move_down: bool,
     pub quit: bool,
+    pub mouse_position: Vector2,
+    pub left_mouse_pressed: bool,
 }
 
 impl EventManager
@@ -25,11 +28,17 @@ impl EventManager
             move_up: false,
             move_down: false,
             quit: false,
+            mouse_position: Vector2::zero(),
+            left_mouse_pressed: false,
         }
     }
 
     pub fn update_events(&mut self)
     {
+        let mousestate = self.event_pump.mouse_state();
+        self.mouse_position = Vector2{x: mousestate.x() as f32, y: mousestate.y() as f32};
+        self.left_mouse_pressed = mousestate.is_mouse_button_pressed(MouseButton::Left);
+        
         for event in self.event_pump.poll_iter() {
             match event {
                 Event::Quit {..} | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
@@ -59,11 +68,8 @@ impl EventManager
                 Event::KeyUp { keycode: Some(Keycode::Down), .. } | Event::KeyUp { keycode: Some(Keycode::S), .. } => {
                     self.move_down = false;
                 },
-                Event::MouseMotion {..} => {
-                    
-                },
                 _e => {
-                 //   println!("{:?}", e);
+                 //   println!("{:?}", _e);
                 }
             }
         }
@@ -84,5 +90,11 @@ impl EventManager
             else { 0.0 }
         };
         Vector2 { x, y }
+    }
+
+    pub fn mouse_in_rect(&self, rect: sdl2::rect::Rect) -> bool
+    {
+        (self.mouse_position.x as i32 > rect.x && (self.mouse_position.x as i32) < (rect.x + rect.width() as i32)
+        && self.mouse_position.y as i32 > rect.y && (self.mouse_position.y as i32) < (rect.y + rect.height() as i32))
     }
 }

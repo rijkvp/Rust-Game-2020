@@ -58,7 +58,7 @@ impl PhysicsManager
         *self.aabb_colliders.get_mut(&id).unwrap() = new_value;
     }
 
-    pub fn log_colliders(&self)
+    pub fn _log_colliders(&self)
     {
         for (id, collider) in &self.aabb_colliders
         {

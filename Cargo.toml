@@ -8,6 +8,8 @@ edition = "2018"
 
 [dependencies.sdl2]
 version = "0.33"
+default-features = false
+features = ["ttf"]
 
 [[bin]]
 name = "hello_world"
@@ -16,3 +18,7 @@ path = "src/main.rs"
 [[bin]]
 name = "game"
 path = "src/game.rs"
+
+[[bin]]
+name = "ttf-demo"
+path = "src/ttf-demo.rs"
