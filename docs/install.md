@@ -12,7 +12,8 @@ Follow these instuctions to install Rust & SDL2 needed for building.
 
 ## Download SDL2
 
-`sudo apt-get install libsdl2-dev`
+SDL2: `sudo apt-get install libsdl2-dev`
+SDL TTF: `sudo apt install libsdl-ttf2.0-15`
 
 ## Run the project
 
@@ -45,7 +46,13 @@ These are the installation instructions to install Rust & run the project on a W
 3. Copy all .lib files from:
 `SDL2-devel-2.0.x-VC\SDL2-2.0.x\lib\x64\`
 to
-`C:\Users\{Your Username}\.rustup\toolchains\{current toolchain}\lib\rustlib\{current toolchain}\lib`.
+`C:\Users\{Your Username}\.rustup\toolchains\{current toolchain}\lib\rustlib\{current toolchain}\lib`. The DLL's are already copied to the repo.
+4. To use SDL2 TTF you also need to download the SDL2 TFF libs. Download SDL2_ttf-devel-2.0.15-VC form [the SDL TTF website](https://www.libsdl.org/projects/SDL_ttf/).
+5. Unpack to a folder of your choosing (You can delete it afterwards).
+6. Copy all .lib files from:
+`SDL2_ttf-devel-2.0.x-VC\SDL2_ttf-2.0.x\lib\x64`
+to
+`C:\Users\{Your Username}\.rustup\toolchains\{current toolchain}\lib\rustlib\{current toolchain}\lib`. The DLL's are already copied to the repo.
 
 ## Run the project
 
