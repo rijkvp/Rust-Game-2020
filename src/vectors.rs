@@ -2,6 +2,7 @@ use std::ops::SubAssign;
 use std::ops::AddAssign;
 use std::ops;
 use sdl2::rect::{Point};
+use std::fmt;
 
 #[derive(Copy, Clone)]
 pub struct Vector2
@@ -117,5 +118,12 @@ impl ops::Mul<f32> for Vector2
       x: self.x * rhs,
       y: self.y * rhs,
     }
+  }
+}
+
+impl fmt::Display for Vector2
+{
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(f, "X: {}, Y: {}", self.x, self.y)
   }
 }

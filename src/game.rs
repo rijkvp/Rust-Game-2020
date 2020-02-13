@@ -8,6 +8,7 @@ mod player;
 mod texture_manager;
 mod vectors;
 mod button;
+mod bullet;
 
 use crate::camera::Camera;
 use crate::enemy::Enemy;
@@ -17,6 +18,7 @@ use crate::physics::*;
 use crate::player::Player;
 use crate::texture_manager::TextureManager;
 use crate::vectors::Vector2;
+use crate::bullet::Bullet;
 
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
@@ -79,6 +81,9 @@ pub fn main() -> Result<(), String> {
             &mut physics_manager,
         ),
     ];
+    let mut bullets = Vec::<Bullet>::new();
+    let mut fire_countdown = 0.0;
+
     let mut camera = Camera::new();
 
     let mut game_state = GameState::MENU;
@@ -111,6 +116,24 @@ pub fn main() -> Result<(), String> {
                 player.update(&evt_manager, &mut physics_manager);
                 for enemy in enemies.iter_mut() {
                     enemy.update(player.position, &mut physics_manager);
+                }
+                for bullet in bullets.iter_mut() {
+                    bullet.update(&mut physics_manager);
+                }
+                bullets.retain(|bullet| {
+                    !bullet.is_destroyed
+                });
+                if fire_countdown > 0.0
+                {
+                    fire_countdown -= crate::DELTA_TIME;
+                }
+                if evt_manager.left_mouse_pressed && fire_countdown <= 0.0
+                {
+                    fire_countdown = 0.1;
+                    let mut direction = camera.screen_to_world(evt_manager.mouse_position) - player.position;
+                    direction = direction.normalized();
+                    let position_offset = direction * 50.0;
+                    bullets.push(Bullet::new(player.position + position_offset, direction));
                 }
                 camera.update(player.position);
             }
@@ -152,6 +175,10 @@ pub fn main() -> Result<(), String> {
                     None,
                     Rect::from_center(camera.world_to_screen(player.position), 64, 64),
                 )?;
+                for bullet in bullets.iter() {
+                    canvas.set_draw_color(Color::RGBA(255, 255, 0, 255));
+                    canvas.fill_rect(Rect::from_center(camera.world_to_screen(bullet.position), 10, 10)).map_err(|e| e.to_string())?;
+                }
             }
         }
 

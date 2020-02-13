@@ -42,7 +42,7 @@ impl PhysicsManager
 {
     pub fn new() -> PhysicsManager
     {
-        PhysicsManager{ id_counter: 0, aabb_colliders: HashMap::new() }
+        PhysicsManager{ id_counter: 1, aabb_colliders: HashMap::new() }
     }
 
     pub fn add_collider(&mut self, collider: AABB) -> u32
@@ -84,5 +84,25 @@ impl PhysicsManager
             }
         }
         return false;
+    }
+
+    pub fn check_collision_id(&self, collider: &AABB, exclude_id: &u32) -> u32
+    {
+        for (id, aabb) in &self.aabb_colliders
+        {
+            if id == exclude_id
+            {
+                continue;
+            }
+            for point in collider.get_points().iter()
+            {
+                if point.x >= aabb.x1 && point.x <= aabb.x2
+                && point.y >= aabb.y1 && point.y <= aabb.y2
+                {
+                    return *id;
+                }
+            }
+        }
+        return 0;
     }
 }
