@@ -9,6 +9,7 @@ mod texture_manager;
 mod vectors;
 mod button;
 mod bullet;
+mod world;
 
 use crate::camera::Camera;
 use crate::enemy::Enemy;
@@ -19,6 +20,7 @@ use crate::player::Player;
 use crate::texture_manager::TextureManager;
 use crate::vectors::Vector2;
 use crate::bullet::Bullet;
+use crate::world::World;
 
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
@@ -57,30 +59,32 @@ pub fn main() -> Result<(), String> {
 
     let mut player = Player::new(Vector2 { x: 0.0, y: 0.0 }, &mut physics_manager);
 
-    let mut enemies = [
-        Enemy::new(Vector2 { x: 400.0, y: 100.0 }, &mut physics_manager),
-        Enemy::new(
-            Vector2 {
-                x: -600.0,
-                y: 200.0,
-            },
-            &mut physics_manager,
-        ),
+    let mut enemies = Vec::<Enemy>::new();
+    enemies.push(Enemy::new(Vector2 { x: 400.0, y: 100.0 }, &mut physics_manager));
+    enemies.push(Enemy::new(
+        Vector2 {
+            x: -600.0,
+            y: 200.0,
+        },
+        &mut physics_manager,
+    ));
+    enemies.push(
         Enemy::new(
             Vector2 {
                 x: 200.0,
                 y: -500.0,
             },
             &mut physics_manager,
-        ),
+        ));
+        enemies.push(
         Enemy::new(
             Vector2 {
                 x: -100.0,
                 y: -300.0,
             },
             &mut physics_manager,
-        ),
-    ];
+        ));
+
     let mut bullets = Vec::<Bullet>::new();
     let mut fire_countdown = 0.0;
 
@@ -90,6 +94,10 @@ pub fn main() -> Result<(), String> {
     let screen_center = Point::new(WINDOW_WIDTH as i32 / 2, WINDOW_HEIGHT as i32 / 2);
     let mut play_button = Button::new(Rect::from_center(screen_center - Point::new(0, 70), 200, 80), String::from("Play"), &texture_man);
     let mut quit_button = Button::new(Rect::from_center(screen_center + Point::new(0, 70), 200, 80), String::from("Quit"), &texture_man);
+    
+    let mut world = World::new();
+    world.generate();
+    world.log_world();
 
     'running: loop {
         // Events
@@ -117,8 +125,11 @@ pub fn main() -> Result<(), String> {
                 for enemy in enemies.iter_mut() {
                     enemy.update(player.position, &mut physics_manager);
                 }
+                enemies.retain(|enemy| {
+                    !enemy.is_dead
+                });
                 for bullet in bullets.iter_mut() {
-                    bullet.update(&mut physics_manager);
+                    bullet.update(&mut physics_manager, &mut enemies);
                 }
                 bullets.retain(|bullet| {
                     !bullet.is_destroyed

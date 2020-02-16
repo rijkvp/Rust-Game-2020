@@ -1,3 +1,4 @@
+use crate::enemy::Enemy;
 use crate::physics::*;
 use crate::vectors::Vector2;
 
@@ -20,7 +21,7 @@ impl Bullet {
         }
     }
 
-    pub fn update(&mut self, pm: &mut PhysicsManager, ) {
+    pub fn update(&mut self, pm: &mut PhysicsManager, enemies: &mut Vec<Enemy>) {
         if self.is_destroyed
         {
             return;
@@ -35,6 +36,12 @@ impl Bullet {
         let id = pm.check_collision_id(&AABB::from_center(self.position, 10.0, 10.0), &0);
         if id != 0
         {
+            for enemy in enemies.iter_mut() {
+                if enemy.collider_id == id
+                {
+                    enemy.deal_damage(10);
+                }
+            }
             self.is_destroyed = true;
         }
     }

@@ -38,7 +38,7 @@ impl EventManager
         let mousestate = self.event_pump.mouse_state();
         self.mouse_position = Vector2{x: mousestate.x() as f32, y: mousestate.y() as f32};
         self.left_mouse_pressed = mousestate.is_mouse_button_pressed(MouseButton::Left);
-        
+
         for event in self.event_pump.poll_iter() {
             match event {
                 Event::Quit {..} | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {

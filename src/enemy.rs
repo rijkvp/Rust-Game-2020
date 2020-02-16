@@ -5,7 +5,9 @@ const MOVE_SPEED: f32 = 100.0;
 
 pub struct Enemy {
     pub position: Vector2,
-    collider_id: u32,
+    pub collider_id: u32,
+    health: i32,
+    pub is_dead: bool,
 }
 
 impl Enemy {
@@ -15,6 +17,8 @@ impl Enemy {
         Enemy {
             position,
             collider_id,
+            health: 100,
+            is_dead: false,
         }
     }
 
@@ -52,5 +56,17 @@ impl Enemy {
         self.position += enemy_movement;
 
         pm.update_collider(self.collider_id, AABB::from_center(self.position, 64.0, 64.0));
+    }
+    
+    pub fn deal_damage(&mut self, amount: i32)
+    {
+        if !self.is_dead
+        {
+            self.health -= amount;
+            if self.health < 0
+            {
+                self.is_dead = true;
+            }
+        }
     }
 }
