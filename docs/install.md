@@ -14,7 +14,7 @@ Follow these instuctions to install Rust & SDL2 needed for building.
 
 1. SDL2: `sudo apt-get install libsdl2-dev`
 
-2. SDL TTF: `sudo apt install libsdl-ttf2.0-15`
+2. SDL2 TTF: `sudo apt-get install libsdl2-ttf-dev`
 
 ## Run the project
 
