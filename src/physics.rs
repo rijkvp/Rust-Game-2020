@@ -54,12 +54,22 @@ impl PhysicsManager
     }
 
     pub fn update_collider(&mut self, id: u32, new_value: AABB)
+    {   
+        let kvp = self.aabb_colliders.get_mut(&id);
+        if kvp.is_some()
+        {
+            *kvp.unwrap() = new_value;
+        }
+    }
+
+    pub fn remove_collider(&mut self, id: u32)
     {
-        *self.aabb_colliders.get_mut(&id).unwrap() = new_value;
+        &self.aabb_colliders.retain(|key, _| key != &id);
     }
 
     pub fn _log_colliders(&self)
     {
+        println!("{} COLLIDRES:", self.aabb_colliders.len());
         for (id, collider) in &self.aabb_colliders
         {
             println!("{}. X1: {} X2: {} Y1: {} Y2: {}", id, collider.x1, collider.x2, collider.y1, collider.y2);

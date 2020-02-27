@@ -54,11 +54,10 @@ impl Enemy {
             }
         };
         self.position += enemy_movement;
-
         pm.update_collider(self.collider_id, AABB::from_center(self.position, 64.0, 64.0));
     }
     
-    pub fn deal_damage(&mut self, amount: i32)
+    pub fn deal_damage(&mut self, amount: i32, pm: &mut PhysicsManager)
     {
         if !self.is_dead
         {
@@ -66,6 +65,7 @@ impl Enemy {
             if self.health < 0
             {
                 self.is_dead = true;
+                pm.remove_collider(self.collider_id);
             }
         }
     }

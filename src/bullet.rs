@@ -2,7 +2,7 @@ use crate::enemy::Enemy;
 use crate::physics::*;
 use crate::vectors::Vector2;
 
-const MAX_LIFETIME: f32 = 5.0;
+const MAX_LIFETIME: f32 = 20.0;
 
 pub struct Bullet {
     pub position: Vector2,
@@ -27,7 +27,7 @@ impl Bullet {
             return;
         }
 
-        self.position += self.direction * 200.0 * crate::DELTA_TIME;
+        self.position += self.direction * 500.0 * crate::DELTA_TIME;
         self.lifetime += crate::DELTA_TIME;
         if self.lifetime >= MAX_LIFETIME
         {
@@ -39,7 +39,7 @@ impl Bullet {
             for enemy in enemies.iter_mut() {
                 if enemy.collider_id == id
                 {
-                    enemy.deal_damage(10);
+                    enemy.deal_damage(20, pm);
                 }
             }
             self.is_destroyed = true;
