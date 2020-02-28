@@ -3,6 +3,7 @@ use crate::event_manager::EventManager;
 use crate::texture_manager::TextureManager;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use sdl2::render::TextureQuery;
 
 enum ButtonState {
     NORMAL,
@@ -12,20 +13,27 @@ enum ButtonState {
 
 pub struct Button<'r> {
     rect: Rect,
+    text_rect: Rect,
     state: ButtonState,
     text_texture: Texture<'r>
 }
 
+const FONT_FILE: &str = "assets/fonts/Oxanium-Bold.ttf";
+const PADDING: u16 = 12;
+
 impl Button<'_> {
     pub fn new(rect: Rect, text: String, texture_manager: &TextureManager) -> Button {
         let text_texture = texture_manager.create_font_texture(
-            String::from("assets/fonts/OdibeeSans.ttf"),
+            String::from(FONT_FILE),
             text,
-            265,
+            rect.height() as u16 - PADDING,
             Color::RGBA(255, 255, 255, 255)
         );
+        let TextureQuery { width, height, .. } = text_texture.query();
+        let text_rect = Rect::from_center(rect.center(), width, height);
         Button {
             rect,
+            text_rect,
             state: ButtonState::NORMAL,
             text_texture,
         }
@@ -68,6 +76,11 @@ impl Button<'_> {
     pub fn get_rect(&self) -> Rect
     {
         self.rect
+    }
+
+    pub fn get_text_rect(&self) -> Rect
+    {
+        self.text_rect
     }
 
     pub fn get_text_texture(&self) -> &Texture

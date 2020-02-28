@@ -158,11 +158,11 @@ pub fn main() -> Result<(), String> {
             GameState::MENU => {
                 canvas.set_draw_color(play_button.get_color());
                 canvas.fill_rect(play_button.get_rect()).map_err(|e| e.to_string())?;
-                canvas.copy(play_button.get_text_texture(), None, play_button.get_rect())?;
+                canvas.copy(play_button.get_text_texture(), None, play_button.get_text_rect())?;
                
                 canvas.set_draw_color(quit_button.get_color());
                 canvas.fill_rect(quit_button.get_rect()).map_err(|e| e.to_string())?;
-                canvas.copy(quit_button.get_text_texture(), None, quit_button.get_rect())?;
+                canvas.copy(quit_button.get_text_texture(), None, quit_button.get_text_rect())?;
             }
             GameState::GAME => {
                 canvas.copy(

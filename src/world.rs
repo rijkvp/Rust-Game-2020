@@ -3,8 +3,6 @@ extern crate rand;
 use rand::Rng;
 
 const WORLD_SIZE: usize = 5;
-const TOTAL_NODES: usize = WORLD_SIZE * WORLD_SIZE;
-const MAX_ROW_SIZE: usize = WORLD_SIZE - 2;
 
 pub struct World {
     nodes: [[i32; WORLD_SIZE]; WORLD_SIZE]
@@ -36,9 +34,9 @@ impl World {
 
     pub fn log_world(&self)
     {
-        for (y, row) in self.nodes.iter().enumerate() {
+        for (_y, row) in self.nodes.iter().enumerate() {
             println!("");
-            for (x, col) in row.iter().enumerate() {
+            for (_x, col) in row.iter().enumerate() {
                 print!("{}", col);
             }
         }
