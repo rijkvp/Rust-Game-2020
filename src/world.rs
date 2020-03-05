@@ -1,17 +1,27 @@
 extern crate rand;
 
+use crate::texture_manager::TextureManager;
+use crate::tile::TileInfo;
 use rand::Rng;
+use sdl2::render::Texture;
 
-const WORLD_SIZE: usize = 5;
+const WORLD_SIZE: usize = 30;
 
-pub struct World {
-    nodes: [[i32; WORLD_SIZE]; WORLD_SIZE]
+pub struct World<'a> {
+    nodes: [[u16; WORLD_SIZE]; WORLD_SIZE],
+    tile_data: [TileInfo<'a>; 2]
 }
 
-impl World {
-    pub fn new() -> World {
+impl World<'_> {
+    pub fn new(texture_manager: &TextureManager) -> World {
+        let tile_data: [TileInfo<'_>; 2] = [ 
+            TileInfo::new(0, String::from("assets/tilemap/1.bmp"), false, texture_manager),
+            TileInfo::new(1, String::from("assets/tilemap/2.bmp"), false, texture_manager) 
+        ];
+
         World{
-            nodes: [[0;WORLD_SIZE];WORLD_SIZE]
+            nodes: [[0;WORLD_SIZE];WORLD_SIZE],
+            tile_data
         }
     }
 
@@ -32,6 +42,11 @@ impl World {
         }
     }
 
+    pub fn get_size(&self) -> usize
+    {
+        WORLD_SIZE
+    }
+
     pub fn log_world(&self)
     {
         for (_y, row) in self.nodes.iter().enumerate() {
@@ -40,5 +55,15 @@ impl World {
                 print!("{}", col);
             }
         }
+    }
+
+    pub fn get_tile(&self, x: usize, y: usize) -> u16
+    {
+        self.nodes[x][y]
+    }
+
+    pub fn get_texture(&self, tile_id: u16) -> &Texture<'_>
+    {
+        &self.tile_data[tile_id as usize].texture
     }
 }
