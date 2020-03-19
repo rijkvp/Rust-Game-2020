@@ -107,6 +107,10 @@ pub fn main() -> Result<(), String> {
     world.generate();
     world.log_world();
 
+    println!("Testing");
+    println!("0,0 : {}", tile::tile_to_world_coords(0, 0, &world));
+    println!("50,50 : {}", tile::tile_to_world_coords(50, 50, &world));
+
     'running: loop {
         // Events
         evt_manager.update_events();
@@ -128,6 +132,18 @@ pub fn main() -> Result<(), String> {
             }
             GameState::GAME => {
                 player.update(&evt_manager, &mut physics_manager);
+                let player_tile_pos = tile::world_to_tile_coords(player.position  + Vector2{x: 32.0, y: 32.0}, &world);
+                //println!("CHUNK: {}", player_tile_pos);
+                //world.set_surrounding(player_tile_pos);
+                // let surrounding = world.get_surrounding(player_tile_pos);
+                // println!("");
+                // for (_y, row) in surrounding.iter().enumerate() {
+                //     println!("");
+                //     for (_x, col) in row.iter().enumerate() {
+                //         print!("{}", col);
+                //     }
+                // }
+                // println!("Player pos: {}", player.position);
                 for enemy in enemies.iter_mut() {
                     enemy.update(player.position, &mut physics_manager);
                 }
@@ -152,7 +168,7 @@ pub fn main() -> Result<(), String> {
         }
 
         // Draw
-        canvas.set_draw_color(Color::RGBA(180, 180, 180, 255));
+        canvas.set_draw_color(Color::RGBA(0, 0, 0, 255));
         canvas.clear(); // Clear the previous frame
 
         match game_state {
@@ -184,10 +200,7 @@ pub fn main() -> Result<(), String> {
                             world.get_texture(world.get_tile(x, y)),
                             None,
                             Rect::from_center(
-                                camera.world_to_screen(Vector2 { // TODO: Create a function to store this calculation
-                                    x: (x as f32) * 64.0 - 0.5 * world.get_size() as f32 * 64.0,
-                                    y: (y as f32) * 64.0 - 0.5 * world.get_size() as f32 * 64.0,
-                                }),
+                                tile::tile_to_screen_coords(x as u16, y as u16, &camera, &world),
                                 64,
                                 64,
                             ),
