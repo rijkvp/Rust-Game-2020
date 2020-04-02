@@ -51,8 +51,10 @@ pub fn main() -> Result<(), String> {
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
     let texture_man = TextureManager::new(canvas.texture_creator());
 
-    let enemy_texture = texture_man.get_texture(String::from("assets/enemy1.bmp"));
-    let player_texture = texture_man.get_texture(String::from("assets/player.bmp"));
+    let enemy_texture = texture_man.get_texture(String::from("assets/textures/enemy1.bmp"));
+    let player_texture = texture_man.get_texture(String::from("assets/textures/player.bmp"));
+    
+    let logo_texture = texture_man.get_texture(String::from("assets/textures/logo.bmp"));
 
     let mut evt_manager: EventManager = EventManager::new(sdl_context.event_pump()?);
     let mut physics_manager = PhysicsManager::new();
@@ -130,6 +132,7 @@ pub fn main() -> Result<(), String> {
                 play_button.update(&evt_manager);
                 quit_button.update(&evt_manager);
             }
+            
             GameState::GAME => {
                 player.update(&evt_manager, &mut physics_manager);
                 let player_tile_pos = tile::world_to_tile_coords(player.position  + Vector2{x: 32.0, y: 32.0}, &world);
@@ -191,6 +194,11 @@ pub fn main() -> Result<(), String> {
                     None,
                     quit_button.get_text_rect(),
                 )?;
+                canvas.copy(
+                    &logo_texture,
+                    None,
+                    Rect::from_center(screen_center - Point::new(0, 250), (200.0 * 1.5) as u32, (150.0 * 1.5) as u32),
+                )?;
             }
             GameState::GAME => {
                 // Draw tiles
@@ -231,7 +239,6 @@ pub fn main() -> Result<(), String> {
                 }
             }
         }
-
         canvas.present(); // Present the new frame
 
         // Wait for next frame
