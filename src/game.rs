@@ -1,5 +1,6 @@
 extern crate sdl2;
 
+mod texture_manager;
 mod bullet;
 mod button;
 mod camera;
@@ -7,10 +8,10 @@ mod enemy;
 mod event_manager;
 mod physics;
 mod player;
-mod texture_manager;
 mod tile;
 mod vectors;
 mod world;
+mod text;
 
 use crate::bullet::Bullet;
 use crate::button::Button;

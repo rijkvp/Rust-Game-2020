@@ -17,15 +17,15 @@ pub struct World<'a> {
     tile_data: [TileInfo<'a>; TILESET_SIZE]
 }
 
-impl World<'_> {
-    pub fn new(texture_manager: &TextureManager) -> World {
+impl<'a> World<'a> {
+    pub fn new(texture_manager: &'a TextureManager) -> World<'a> {
         let tile_data: [TileInfo<'_>; TILESET_SIZE] = [ 
             TileInfo::new(0, String::from("assets/tilemap/1.bmp"), true, texture_manager),
             TileInfo::new(1, String::from("assets/tilemap/2.bmp"), false, texture_manager),
             TileInfo::new(2, String::from("assets/tilemap/3.bmp"), false, texture_manager) 
         ];
 
-        World{
+        World {
             dungeon_map: [[0;DUNGEON_SIZE];DUNGEON_SIZE],
             tile_map: [[0;WORLD_SIZE];WORLD_SIZE],
             tile_data

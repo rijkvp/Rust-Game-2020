@@ -25,7 +25,7 @@ impl Player
     {
         let mut movement = evt_manager.get_input_vector();
 
-        movement = movement.normalized() * 200.0 * crate::DELTA_TIME;
+        movement = movement.normalized() * 400.0 * crate::DELTA_TIME;
 
         if !pm.check_collision(
         &AABB::from_center(self.position + Vector2{x: movement.x, y: 0.0}, 64.0, 64.0), &self.collider_id)

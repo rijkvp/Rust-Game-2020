@@ -7,15 +7,15 @@ use crate::texture_manager::TextureManager;
 
 const TILE_SIZE: f32 = 64.0;
 
-pub struct TileInfo<'r>
+pub struct TileInfo<'a>
 {
     id: u16,
-    pub texture: Texture<'r>,
+    pub texture: Texture<'a>,
     pub is_solid: bool
 }
 
-impl TileInfo<'_> {
-    pub fn new(id: u16, texture_path: String, is_solid: bool, texture_manager: &TextureManager) -> TileInfo
+impl<'a>  TileInfo<'a> {
+    pub fn new(id: u16, texture_path: String, is_solid: bool, texture_manager: &'a TextureManager) -> TileInfo<'a>
     {
         let texture = texture_manager.get_texture(texture_path);
         TileInfo {

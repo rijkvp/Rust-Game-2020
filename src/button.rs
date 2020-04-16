@@ -11,31 +11,31 @@ enum ButtonState {
     PRESSED,
 }
 
-pub struct Button<'r> {
+pub struct Button<'a> {
     rect: Rect,
     text_rect: Rect,
     state: ButtonState,
-    text_texture: Texture<'r>
+    text_texture: &'a Texture<'a>,
 }
 
 const FONT_FILE: &str = "assets/fonts/Oxanium-Bold.ttf";
 const PADDING: u16 = 12;
 
-impl Button<'_> {
-    pub fn new(rect: Rect, text: String, texture_manager: &TextureManager) -> Button {
-        let text_texture = texture_manager.create_font_texture(
+impl<'a> Button<'a> {
+    pub fn new(rect: Rect, text: String, texture_manager: &'a TextureManager) -> Button<'a> {
+        let text_tex: Texture<'a> = texture_manager.create_font_texture(
             String::from(FONT_FILE),
             text,
             rect.height() as u16 - PADDING,
             Color::RGBA(255, 255, 255, 255)
         );
-        let TextureQuery { width, height, .. } = text_texture.query();
+        let TextureQuery { width, height, .. } = text_tex.query();
         let text_rect = Rect::from_center(rect.center(), width, height);
         Button {
             rect,
             text_rect,
             state: ButtonState::NORMAL,
-            text_texture,
+            text_texture: text_tex,
         }
     }
 
