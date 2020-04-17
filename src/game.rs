@@ -1,6 +1,5 @@
 extern crate sdl2;
 
-mod texture_manager;
 mod bullet;
 mod button;
 mod camera;
@@ -8,10 +7,11 @@ mod enemy;
 mod event_manager;
 mod physics;
 mod player;
+mod text;
+mod texture_manager;
 mod tile;
 mod vectors;
 mod world;
-mod text;
 
 use crate::bullet::Bullet;
 use crate::button::Button;
@@ -20,6 +20,7 @@ use crate::enemy::Enemy;
 use crate::event_manager::EventManager;
 use crate::physics::*;
 use crate::player::Player;
+use crate::text::Text;
 use crate::texture_manager::TextureManager;
 use crate::vectors::Vector2;
 use crate::world::World;
@@ -33,6 +34,7 @@ const FPS: f32 = 60.0;
 const DELTA_TIME: f32 = 1.0 / FPS;
 const WINDOW_WIDTH: u32 = 1000;
 const WINDOW_HEIGHT: u32 = 800;
+const HUD_PADDING: i32 = 10;
 
 enum GameState {
     MENU,
@@ -54,8 +56,28 @@ pub fn main() -> Result<(), String> {
 
     let enemy_texture = texture_man.get_texture(String::from("assets/textures/enemy1.bmp"));
     let player_texture = texture_man.get_texture(String::from("assets/textures/player.bmp"));
-    
     let logo_texture = texture_man.get_texture(String::from("assets/textures/logo.bmp"));
+    let hud_text_top_left = Text::new(
+        HUD_PADDING,
+        HUD_PADDING,
+        38,
+        String::from("FLOOR 1"),
+        &texture_man,
+    );
+    let hud_text_top_right = Text::new(
+        HUD_PADDING,
+        HUD_PADDING,
+        38,
+        String::from("4 LEFT"),
+        &texture_man,
+    );
+    let hud_text_bottom_left = Text::new(
+        HUD_PADDING,
+        HUD_PADDING,
+        46,
+        String::from("100 HP"),
+        &texture_man,
+    );
 
     let mut evt_manager: EventManager = EventManager::new(sdl_context.event_pump()?);
     let mut physics_manager = PhysicsManager::new();
@@ -133,10 +155,12 @@ pub fn main() -> Result<(), String> {
                 play_button.update(&evt_manager);
                 quit_button.update(&evt_manager);
             }
-            
             GameState::GAME => {
                 player.update(&evt_manager, &mut physics_manager);
-                let player_tile_pos = tile::world_to_tile_coords(player.position  + Vector2{x: 32.0, y: 32.0}, &world);
+                let player_tile_pos = tile::world_to_tile_coords(
+                    player.position + Vector2 { x: 32.0, y: 32.0 },
+                    &world,
+                );
                 //println!("CHUNK: {}", player_tile_pos);
                 //world.set_surrounding(player_tile_pos);
                 // let surrounding = world.get_surrounding(player_tile_pos);
@@ -198,7 +222,11 @@ pub fn main() -> Result<(), String> {
                 canvas.copy(
                     &logo_texture,
                     None,
-                    Rect::from_center(screen_center - Point::new(0, 250), (200.0 * 1.5) as u32, (150.0 * 1.5) as u32),
+                    Rect::from_center(
+                        screen_center - Point::new(0, 250),
+                        (200.0 * 1.5) as u32,
+                        (150.0 * 1.5) as u32,
+                    ),
                 )?;
             }
             GameState::GAME => {
@@ -238,6 +266,33 @@ pub fn main() -> Result<(), String> {
                         ))
                         .map_err(|e| e.to_string())?;
                 }
+                canvas.copy(
+                    hud_text_top_left.get_texture(),
+                    None,
+                    hud_text_top_left.get_rect(),
+                )?;
+                let top_right_width: i32 = hud_text_top_right.get_rect().width() as i32;
+                canvas.copy(
+                    hud_text_top_right.get_texture(),
+                    None,
+                    Rect::new(
+                        WINDOW_WIDTH as i32 - top_right_width - HUD_PADDING,
+                        HUD_PADDING,
+                        top_right_width as u32,
+                        hud_text_top_right.get_rect().height(),
+                    ),
+                )?;
+                let bottom_left_height: i32 = hud_text_bottom_left.get_rect().height() as i32; 
+                canvas.copy(
+                    hud_text_bottom_left.get_texture(),
+                    None,
+                    Rect::new(
+                        HUD_PADDING,
+                        WINDOW_HEIGHT as i32 - bottom_left_height - HUD_PADDING,
+                        hud_text_bottom_left.get_rect().width(),
+                        bottom_left_height as u32,
+                    ),
+                )?;
             }
         }
         canvas.present(); // Present the new frame

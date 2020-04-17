@@ -7,7 +7,7 @@ use sdl2::pixels::Color;
 pub struct Text<'a>
 {
     text_rect: Rect,
-    text_texture: &'a Texture<'a>,
+    text_texture: Texture<'a>,
     size: u16,
 }
 
@@ -28,20 +28,20 @@ impl<'a> Text<'a>
         let text_rect = Rect::new(x, y, width, height);
         Text {
             text_rect,
-            text_texture: &text_tex,
+            text_texture: text_tex,
             size,
         }
     }
 
     pub fn update(&mut self, text: String, texture_manager: &'a TextureManager)
     {
-        let new_texture: &sdl2::render::Texture<'_> = &texture_manager.create_font_texture(
+        let new_texture: Texture<'a> = texture_manager.create_font_texture(
             String::from(FONT_FILE),
             text,
             self.size,
             Color::RGBA(255, 255, 255, 255)
         );
-        self.text_texture = &new_texture;
+        self.text_texture = new_texture;
     }
 
     pub fn get_rect(&self) -> Rect

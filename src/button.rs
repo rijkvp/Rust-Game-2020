@@ -15,14 +15,14 @@ pub struct Button<'a> {
     rect: Rect,
     text_rect: Rect,
     state: ButtonState,
-    text_texture: &'a Texture<'a>,
+    text_texture: Texture<'a>
 }
 
 const FONT_FILE: &str = "assets/fonts/Oxanium-Bold.ttf";
 const PADDING: u16 = 12;
 
-impl<'a> Button<'a> {
-    pub fn new(rect: Rect, text: String, texture_manager: &'a TextureManager) -> Button<'a> {
+impl Button<'_> {
+    pub fn new<'a>(rect: Rect, text: String, texture_manager: &'a TextureManager) -> Button<'a> {
         let text_tex: Texture<'a> = texture_manager.create_font_texture(
             String::from(FONT_FILE),
             text,
