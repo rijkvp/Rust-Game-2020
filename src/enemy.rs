@@ -4,11 +4,14 @@ use crate::physics::*;
 use crate::vectors::Vector2;
 
 const MOVE_SPEED: f32 = 300.0;
+const MAX_MOVE_DISTANCE: f32 = 800.0;
 const MIN_MOVE_DISTANCE: f32 = 200.0;
 const MELEE_ATTACK_RANGE: f32 = 80.0;
 const RANGE_ATTACK_RANGE: f32 = 500.0;
 const MELEE_DPS: f32 = 30.0;
 
+
+#[derive(Copy, Clone)]
 pub enum EnemyType
 {
     Melee, 
@@ -43,8 +46,8 @@ impl Enemy {
         // Movement
         let can_move = match self.enemy_type
         {
-            EnemyType::Melee => true,
-            EnemyType::Range => distance_to_target > MIN_MOVE_DISTANCE,
+            EnemyType::Melee => distance_to_target < MAX_MOVE_DISTANCE, 
+            EnemyType::Range => distance_to_target > MIN_MOVE_DISTANCE && distance_to_target < MAX_MOVE_DISTANCE,
         };
         if can_move
         {

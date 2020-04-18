@@ -33,8 +33,8 @@ use std::time::Duration;
 
 const FPS: f32 = 60.0;
 const DELTA_TIME: f32 = 1.0 / FPS;
-const WINDOW_WIDTH: u32 = 1000;
-const WINDOW_HEIGHT: u32 = 800;
+const WINDOW_WIDTH: u32 = 1920;
+const WINDOW_HEIGHT: u32 = 1080;
 const HUD_PADDING: i32 = 10;
 
 enum GameState {
@@ -54,7 +54,6 @@ fn game() -> Result<(), String>
     let window = video_subsystem
         .window("Rust Game", WINDOW_WIDTH, WINDOW_HEIGHT)
         .position_centered()
-        .resizable()
         .opengl()
         .build()
         .map_err(|e| e.to_string())?;
@@ -87,45 +86,7 @@ fn game() -> Result<(), String>
     );
 
     let mut evt_manager: EventManager = EventManager::new(sdl_context.event_pump()?);
-    let mut physics_manager = PhysicsManager::new();
-
-    let mut player = Player::new(Vector2 { x: 0.0, y: 0.0 }, &mut physics_manager);
-
-    let mut enemies = Vec::<Enemy>::new();
-    enemies.push(Enemy::new(
-        Vector2 { x: 400.0, y: 100.0 },
-        &mut physics_manager,
-        EnemyType::Range,
-    ));
-    enemies.push(Enemy::new(
-        Vector2 {
-            x: -600.0,
-            y: 200.0,
-        },
-        &mut physics_manager,
-        EnemyType::Range,
-    ));
-    enemies.push(Enemy::new(
-        Vector2 {
-            x: 200.0,
-            y: -500.0,
-        },
-        &mut physics_manager,
-        EnemyType::Melee,
-    ));
-    enemies.push(Enemy::new(
-        Vector2 {
-            x: -100.0,
-            y: -300.0,
-        },
-        &mut physics_manager,
-        EnemyType::Melee,
-    ));
-
-    let mut bullets = Vec::<Bullet>::new();
-    let mut fire_countdown = 0.0;
-
-    let mut camera = Camera::new();
+    
 
     let mut game_state = GameState::MENU;
     let screen_center = Point::new(WINDOW_WIDTH as i32 / 2, WINDOW_HEIGHT as i32 / 2);
@@ -144,11 +105,18 @@ fn game() -> Result<(), String>
         String::from("Quit"),
         &texture_man,
     );
-    let mut world = World::new(&texture_man);
-    world.generate();
-    world.log_world();
 
-    println!("Testing");
+
+    // Gameplay elements
+    let mut physics_manager = PhysicsManager::new();
+    let mut player = Player::new(Vector2 { x: 0.0, y: 0.0 }, &mut physics_manager);
+    let mut bullets = Vec::<Bullet>::new();
+    let mut fire_countdown = 0.0;
+
+    let mut camera = Camera::new();
+    let mut world = World::new(&texture_man);
+    world.generate(&mut physics_manager);
+    world.log_world();
     println!("0,0 : {}", tile::tile_to_world_coords(0, 0, &world));
     println!("50,50 : {}", tile::tile_to_world_coords(50, 50, &world));
 
@@ -188,16 +156,13 @@ fn game() -> Result<(), String>
                 //     }
                 // }
                 // println!("Player pos: {}", player.position);
-                for enemy in enemies.iter_mut() {
-                    enemy.update(&mut player, &mut physics_manager);
-                }
-                enemies.retain(|enemy| !enemy.is_dead);
+                world.update_enemies(&mut player, &mut physics_manager);
                 if player.is_dead
                 {
                     game_state = GameState::GAMEOVER;
                 }
                 for bullet in bullets.iter_mut() {
-                    bullet.update(&mut physics_manager, &mut enemies);
+                    bullet.update(&mut physics_manager, &mut world.enemies);
                 }
                 bullets.retain(|bullet| !bullet.is_destroyed);
                 if fire_countdown > 0.0 {
@@ -271,7 +236,7 @@ fn game() -> Result<(), String>
                         )?;
                     }
                 }
-                for enemy in enemies.iter() {
+                for enemy in world.enemies.iter() {
                     canvas.copy(
                         &enemy_texture,
                         None,

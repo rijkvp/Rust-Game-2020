@@ -1,8 +1,12 @@
 extern crate rand;
 
+use crate::player::Player;
+use crate::physics::PhysicsManager;
+use crate::enemy::Enemy;
+use crate::enemy::EnemyType;
 use crate::vectors::Vector2;
 use crate::texture_manager::TextureManager;
-use crate::tile::TileInfo;
+use crate::tile::*;
 use rand::Rng;
 use sdl2::render::Texture;
 
@@ -14,7 +18,8 @@ const TILESET_SIZE: usize = 3;
 pub struct World<'a> {
     dungeon_map: [[u16; DUNGEON_SIZE]; DUNGEON_SIZE],
     tile_map: [[u16; WORLD_SIZE]; WORLD_SIZE],
-    tile_data: [TileInfo<'a>; TILESET_SIZE]
+    tile_data: [TileInfo<'a>; TILESET_SIZE],
+    pub enemies: Vec::<Enemy>,
 }
 
 impl<'a> World<'a> {
@@ -28,11 +33,13 @@ impl<'a> World<'a> {
         World {
             dungeon_map: [[0;DUNGEON_SIZE];DUNGEON_SIZE],
             tile_map: [[0;WORLD_SIZE];WORLD_SIZE],
-            tile_data
+            tile_data,
+            enemies: Vec::<Enemy>::new(),
         }
     }
 
-    pub fn generate(&mut self) {
+    pub fn generate(&mut self, pm: &mut PhysicsManager) {
+        let mut rng = rand::thread_rng();
         // Dungeon map
         // TODO: Generate dungeon map like this:
         // let mut rng = rand::thread_rng();
@@ -77,16 +84,52 @@ impl<'a> World<'a> {
                 let start_y = dungeon_y * TILES_PER_DUNGEON;
                 let end_x = dungeon_x * TILES_PER_DUNGEON + TILES_PER_DUNGEON;
                 let end_y = dungeon_y * TILES_PER_DUNGEON + TILES_PER_DUNGEON;
+                
+                if dungeon_value == 2
+                {
+                    let mut spawnpoints = Vec::<Vector2>::new();
+                    spawnpoints.push(tile_to_world_coords((start_x + 1) as u16, (start_y + 1) as u16, &self));
+                    spawnpoints.push(tile_to_world_coords((end_x - 2) as u16, (start_y + 1) as u16, &self));
+                    spawnpoints.push(tile_to_world_coords((start_x + 1) as u16, (end_y - 2) as u16, &self));
+                    spawnpoints.push(tile_to_world_coords((end_x - 2) as u16, (end_y - 2) as u16, &self));
+                    spawnpoints.push(tile_to_world_coords((start_x + (end_x - start_x) / 2) as u16, (start_y + (end_y - start_y) / 2) as u16, &self));
+
+                    for spawnpoint in spawnpoints.iter()
+                    {
+                        let enemy_type = match rng.gen_range(0, 2)
+                        {
+                            0 => EnemyType::Melee,
+                            1 => EnemyType::Range,
+                            _ => panic!(),
+                        };
+                        self.enemies.push(
+                            Enemy::new(
+                                Vector2 { x: spawnpoint.x, y: spawnpoint.y },
+                                pm,
+                                enemy_type,
+                            )
+                        );
+                    }
+                }
 
                 for x in start_x..end_x
                 {
                     for y in start_y..end_y
                     {
                         self.tile_map[x][y] = dungeon_value;
+                        
                     }
                 }
             }
         }
+    }
+
+    pub fn update_enemies(&mut self, player: &mut Player, pm: &mut PhysicsManager)
+    {
+        for enemy in self.enemies.iter_mut() {
+            enemy.update(player, pm);
+        }
+        self.enemies.retain(|enemy| !enemy.is_dead);
     }
 
     pub fn get_size(&self) -> usize

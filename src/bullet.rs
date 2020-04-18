@@ -3,6 +3,8 @@ use crate::physics::*;
 use crate::vectors::Vector2;
 
 const MAX_LIFETIME: f32 = 20.0;
+const BULLET_SPEED: f32 = 700.0;
+
 
 pub struct Bullet {
     pub position: Vector2,
@@ -27,7 +29,7 @@ impl Bullet {
             return;
         }
 
-        self.position += self.direction * 500.0 * crate::DELTA_TIME;
+        self.position += self.direction * BULLET_SPEED * crate::DELTA_TIME;
         self.lifetime += crate::DELTA_TIME;
         if self.lifetime >= MAX_LIFETIME
         {
