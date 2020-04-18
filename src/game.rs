@@ -17,6 +17,7 @@ use crate::bullet::Bullet;
 use crate::button::Button;
 use crate::camera::Camera;
 use crate::enemy::Enemy;
+use crate::enemy::EnemyType;
 use crate::event_manager::EventManager;
 use crate::physics::*;
 use crate::player::Player;
@@ -39,9 +40,15 @@ const HUD_PADDING: i32 = 10;
 enum GameState {
     MENU,
     GAME,
+    GAMEOVER,
 }
 
 pub fn main() -> Result<(), String> {
+    game()
+}
+
+fn game() -> Result<(), String>
+{
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem
@@ -52,8 +59,8 @@ pub fn main() -> Result<(), String> {
         .build()
         .map_err(|e| e.to_string())?;
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
+    
     let texture_man = TextureManager::new(canvas.texture_creator());
-
     let enemy_texture = texture_man.get_texture(String::from("assets/textures/enemy1.bmp"));
     let player_texture = texture_man.get_texture(String::from("assets/textures/player.bmp"));
     let logo_texture = texture_man.get_texture(String::from("assets/textures/logo.bmp"));
@@ -71,7 +78,7 @@ pub fn main() -> Result<(), String> {
         String::from("4 LEFT"),
         &texture_man,
     );
-    let hud_text_bottom_left = Text::new(
+    let mut hud_text_bottom_left = Text::new(
         HUD_PADDING,
         HUD_PADDING,
         46,
@@ -88,6 +95,7 @@ pub fn main() -> Result<(), String> {
     enemies.push(Enemy::new(
         Vector2 { x: 400.0, y: 100.0 },
         &mut physics_manager,
+        EnemyType::Range,
     ));
     enemies.push(Enemy::new(
         Vector2 {
@@ -95,6 +103,7 @@ pub fn main() -> Result<(), String> {
             y: 200.0,
         },
         &mut physics_manager,
+        EnemyType::Range,
     ));
     enemies.push(Enemy::new(
         Vector2 {
@@ -102,6 +111,7 @@ pub fn main() -> Result<(), String> {
             y: -500.0,
         },
         &mut physics_manager,
+        EnemyType::Melee,
     ));
     enemies.push(Enemy::new(
         Vector2 {
@@ -109,6 +119,7 @@ pub fn main() -> Result<(), String> {
             y: -300.0,
         },
         &mut physics_manager,
+        EnemyType::Melee,
     ));
 
     let mut bullets = Vec::<Bullet>::new();
@@ -121,6 +132,11 @@ pub fn main() -> Result<(), String> {
     let mut play_button = Button::new(
         Rect::from_center(screen_center - Point::new(0, 70), 200, 80),
         String::from("Play"),
+        &texture_man,
+    );
+    let mut play_again_button = Button::new(
+        Rect::from_center(screen_center - Point::new(0, 70), 200, 80),
+        String::from("Play Again"),
         &texture_man,
     );
     let mut quit_button = Button::new(
@@ -173,9 +189,13 @@ pub fn main() -> Result<(), String> {
                 // }
                 // println!("Player pos: {}", player.position);
                 for enemy in enemies.iter_mut() {
-                    enemy.update(player.position, &mut physics_manager);
+                    enemy.update(&mut player, &mut physics_manager);
                 }
                 enemies.retain(|enemy| !enemy.is_dead);
+                if player.is_dead
+                {
+                    game_state = GameState::GAMEOVER;
+                }
                 for bullet in bullets.iter_mut() {
                     bullet.update(&mut physics_manager, &mut enemies);
                 }
@@ -192,7 +212,14 @@ pub fn main() -> Result<(), String> {
                     bullets.push(Bullet::new(player.position + position_offset, direction));
                 }
                 camera.update(player.position);
-            }
+                hud_text_bottom_left.update((player.health as i32).to_string() + " HP", &texture_man)
+            },
+            GameState::GAMEOVER => {
+                if play_again_button.is_pressed() {
+                    game_state = GameState::MENU;
+                }
+                play_again_button.update(&evt_manager);
+            },
         }
 
         // Draw
@@ -293,7 +320,18 @@ pub fn main() -> Result<(), String> {
                         bottom_left_height as u32,
                     ),
                 )?;
-            }
+            },
+            GameState::GAMEOVER => {
+                canvas.set_draw_color(play_again_button.get_color());
+                canvas
+                    .fill_rect(play_again_button.get_rect())
+                    .map_err(|e| e.to_string())?;
+                canvas.copy(
+                    play_again_button.get_text_texture(),
+                    None,
+                    play_again_button.get_text_rect(),
+                )?;
+            },
         }
         canvas.present(); // Present the new frame
 
@@ -301,5 +339,6 @@ pub fn main() -> Result<(), String> {
         std::thread::sleep(Duration::from_secs_f32(DELTA_TIME));
     }
 
+    
     Ok(())
 }

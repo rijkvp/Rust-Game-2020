@@ -57,6 +57,11 @@ impl Vector2
   {
     return a + (b-a) * t;
   }
+
+  pub fn distance(a: Vector2, b: Vector2) -> f32
+  {
+    return (a-b).magnitude();
+  }
 }
 
 impl ops::Add<Vector2> for Vector2

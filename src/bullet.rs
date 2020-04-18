@@ -39,7 +39,7 @@ impl Bullet {
             for enemy in enemies.iter_mut() {
                 if enemy.collider_id == id
                 {
-                    enemy.deal_damage(20, pm);
+                    enemy.take_damage(20.0, pm);
                 }
             }
             self.is_destroyed = true;

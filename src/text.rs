@@ -42,6 +42,8 @@ impl<'a> Text<'a>
             Color::RGBA(255, 255, 255, 255)
         );
         self.text_texture = new_texture;
+        let TextureQuery { width, height, .. } = self.text_texture.query();
+        self.text_rect = Rect::new(self.text_rect.x, self.text_rect.y, width, height);
     }
 
     pub fn get_rect(&self) -> Rect
