@@ -1,4 +1,3 @@
-use crate::DELTA_TIME;
 use crate::player::Player;
 use crate::physics::*;
 use crate::vectors::Vector2;
@@ -39,7 +38,7 @@ impl Enemy {
         }
     }
 
-    pub fn update(&mut self, target: &mut Player, pm: &mut PhysicsManager) {
+    pub fn update(&mut self, target: &mut Player, pm: &mut PhysicsManager, delta_time: f32) {
         
         let distance_to_target = Vector2::distance(self.position, target.position);
 
@@ -51,7 +50,7 @@ impl Enemy {
         };
         if can_move
         {
-            let move_distance = MOVE_SPEED * crate::DELTA_TIME;
+            let move_distance = MOVE_SPEED * delta_time;
             let move_horizontal = !pm.check_collision(
                 &AABB::from_center(self.position + Vector2{x: move_distance, y: 0.0}, 64.0, 64.0),
                 &self.collider_id,
@@ -65,7 +64,7 @@ impl Enemy {
                 {
                     let mut dir = target.position - self.position;
                     dir = dir.normalized();
-                    dir = dir * MOVE_SPEED * crate::DELTA_TIME;
+                    dir = dir * MOVE_SPEED * delta_time;
                     if move_horizontal && move_vertical {
                         dir
                     } else if move_horizontal {
@@ -91,7 +90,7 @@ impl Enemy {
             EnemyType::Melee => {
                 if distance_to_target <= MELEE_ATTACK_RANGE
                 {
-                    self.melee_attack(target, pm);
+                    self.melee_attack(target, pm, delta_time);
                 }
             },
             EnemyType::Range => {
@@ -103,9 +102,9 @@ impl Enemy {
         }
     }
 
-    fn melee_attack(&self, player: &mut Player, pm: &mut PhysicsManager)
+    fn melee_attack(&self, player: &mut Player, pm: &mut PhysicsManager, delta_time: f32)
     {
-        player.take_damage(DELTA_TIME * MELEE_DPS, pm)
+        player.take_damage(delta_time * MELEE_DPS, pm)
     }
     
     pub fn take_damage(&mut self, amount: f32, pm: &mut PhysicsManager)

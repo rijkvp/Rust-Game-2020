@@ -124,10 +124,10 @@ impl<'a> World<'a> {
         }
     }
 
-    pub fn update_enemies(&mut self, player: &mut Player, pm: &mut PhysicsManager)
+    pub fn update_enemies(&mut self, player: &mut Player, pm: &mut PhysicsManager, delta_time: f32)
     {
         for enemy in self.enemies.iter_mut() {
-            enemy.update(player, pm);
+            enemy.update(player, pm, delta_time);
         }
         self.enemies.retain(|enemy| !enemy.is_dead);
     }

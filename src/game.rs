@@ -16,8 +16,6 @@ mod world;
 use crate::bullet::Bullet;
 use crate::button::Button;
 use crate::camera::Camera;
-use crate::enemy::Enemy;
-use crate::enemy::EnemyType;
 use crate::event_manager::EventManager;
 use crate::physics::*;
 use crate::player::Player;
@@ -29,10 +27,8 @@ use crate::world::World;
 use sdl2::pixels::Color;
 use sdl2::rect::Point;
 use sdl2::rect::Rect;
-use std::time::Duration;
+use std::time::Instant;
 
-const FPS: f32 = 60.0;
-const DELTA_TIME: f32 = 1.0 / FPS;
 const WINDOW_WIDTH: u32 = 1920;
 const WINDOW_HEIGHT: u32 = 1080;
 const HUD_PADDING: i32 = 10;
@@ -47,8 +43,7 @@ pub fn main() -> Result<(), String> {
     game()
 }
 
-fn game() -> Result<(), String>
-{
+fn game() -> Result<(), String> {
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     let window = video_subsystem
@@ -58,11 +53,13 @@ fn game() -> Result<(), String>
         .build()
         .map_err(|e| e.to_string())?;
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
-    
     let texture_man = TextureManager::new(canvas.texture_creator());
     let enemy_texture = texture_man.get_texture(String::from("assets/textures/enemy1.bmp"));
     let player_texture = texture_man.get_texture(String::from("assets/textures/player.bmp"));
+    let bullet_texture = texture_man.get_texture(String::from("assets/textures/bullet.bmp"));
+    let gun_texture = texture_man.get_texture(String::from("assets/textures/gun.bmp"));
     let logo_texture = texture_man.get_texture(String::from("assets/textures/logo.bmp"));
+
     let hud_text_top_left = Text::new(
         HUD_PADDING,
         HUD_PADDING,
@@ -86,7 +83,6 @@ fn game() -> Result<(), String>
     );
 
     let mut evt_manager: EventManager = EventManager::new(sdl_context.event_pump()?);
-    
 
     let mut game_state = GameState::MENU;
     let screen_center = Point::new(WINDOW_WIDTH as i32 / 2, WINDOW_HEIGHT as i32 / 2);
@@ -96,7 +92,7 @@ fn game() -> Result<(), String>
         &texture_man,
     );
     let mut play_again_button = Button::new(
-        Rect::from_center(screen_center - Point::new(0, 70), 200, 80),
+        Rect::from_center(screen_center - Point::new(0, 70), 400, 80),
         String::from("Play Again"),
         &texture_man,
     );
@@ -105,7 +101,6 @@ fn game() -> Result<(), String>
         String::from("Quit"),
         &texture_man,
     );
-
 
     // Gameplay elements
     let mut physics_manager = PhysicsManager::new();
@@ -120,7 +115,10 @@ fn game() -> Result<(), String>
     println!("0,0 : {}", tile::tile_to_world_coords(0, 0, &world));
     println!("50,50 : {}", tile::tile_to_world_coords(50, 50, &world));
 
+    let mut delta_time: f32 = 0.0;
+    let mut mouse_direction = Vector2::zero();
     'running: loop {
+        let time = Instant::now();
         // Events
         evt_manager.update_events();
         if evt_manager.quit {
@@ -140,7 +138,9 @@ fn game() -> Result<(), String>
                 quit_button.update(&evt_manager);
             }
             GameState::GAME => {
-                player.update(&evt_manager, &mut physics_manager);
+                mouse_direction =
+                    camera.screen_to_world(evt_manager.mouse_position) - player.position;
+                player.update(&evt_manager, &mut physics_manager, delta_time);
                 let player_tile_pos = tile::world_to_tile_coords(
                     player.position + Vector2 { x: 32.0, y: 32.0 },
                     &world,
@@ -156,35 +156,36 @@ fn game() -> Result<(), String>
                 //     }
                 // }
                 // println!("Player pos: {}", player.position);
-                world.update_enemies(&mut player, &mut physics_manager);
-                if player.is_dead
-                {
+                world.update_enemies(&mut player, &mut physics_manager, delta_time);
+                if player.is_dead {
                     game_state = GameState::GAMEOVER;
                 }
                 for bullet in bullets.iter_mut() {
-                    bullet.update(&mut physics_manager, &mut world.enemies);
+                    bullet.update(&mut physics_manager, &mut world.enemies, delta_time);
                 }
                 bullets.retain(|bullet| !bullet.is_destroyed);
                 if fire_countdown > 0.0 {
-                    fire_countdown -= crate::DELTA_TIME;
+                    fire_countdown -= delta_time;
                 }
                 if evt_manager.left_mouse_pressed && fire_countdown <= 0.0 {
                     fire_countdown = 0.1;
-                    let mut direction =
-                        camera.screen_to_world(evt_manager.mouse_position) - player.position;
-                    direction = direction.normalized();
-                    let position_offset = direction * 50.0;
-                    bullets.push(Bullet::new(player.position + position_offset, direction));
+                    mouse_direction = mouse_direction.normalized();
+                    let position_offset = mouse_direction * 50.0;
+                    bullets.push(Bullet::new(
+                        player.position + position_offset,
+                        mouse_direction,
+                    ));
                 }
-                camera.update(player.position);
-                hud_text_bottom_left.update((player.health as i32).to_string() + " HP", &texture_man)
-            },
+                camera.update(player.position, delta_time);
+                hud_text_bottom_left
+                    .update((player.health as i32).to_string() + " HP", &texture_man)
+            }
             GameState::GAMEOVER => {
                 if play_again_button.is_pressed() {
                     game_state = GameState::MENU;
                 }
                 play_again_button.update(&evt_manager);
-            },
+            }
         }
 
         // Draw
@@ -248,15 +249,25 @@ fn game() -> Result<(), String>
                     None,
                     Rect::from_center(camera.world_to_screen(player.position), 64, 64),
                 )?;
+                canvas.copy_ex(
+                    &gun_texture,
+                    None,
+                    Rect::from_center(camera.world_to_screen(player.position), 16, 64),
+                    mouse_direction.get_degrees().into(),
+                    Some(Point::new(8, 32)),
+                    false,
+                    false,
+                )?;
                 for bullet in bullets.iter() {
-                    canvas.set_draw_color(Color::RGBA(255, 255, 0, 255));
-                    canvas
-                        .fill_rect(Rect::from_center(
-                            camera.world_to_screen(bullet.position),
-                            10,
-                            10,
-                        ))
-                        .map_err(|e| e.to_string())?;
+                    canvas.copy_ex(
+                        &bullet_texture,
+                        None,
+                        Rect::from_center(camera.world_to_screen(bullet.position), 8, 32),
+                        bullet.get_rotation().into(),
+                        Some(Point::new(4, 16)),
+                        false,
+                        false,
+                    )?;
                 }
                 canvas.copy(
                     hud_text_top_left.get_texture(),
@@ -274,7 +285,7 @@ fn game() -> Result<(), String>
                         hud_text_top_right.get_rect().height(),
                     ),
                 )?;
-                let bottom_left_height: i32 = hud_text_bottom_left.get_rect().height() as i32; 
+                let bottom_left_height: i32 = hud_text_bottom_left.get_rect().height() as i32;
                 canvas.copy(
                     hud_text_bottom_left.get_texture(),
                     None,
@@ -285,7 +296,7 @@ fn game() -> Result<(), String>
                         bottom_left_height as u32,
                     ),
                 )?;
-            },
+            }
             GameState::GAMEOVER => {
                 canvas.set_draw_color(play_again_button.get_color());
                 canvas
@@ -296,14 +307,18 @@ fn game() -> Result<(), String>
                     None,
                     play_again_button.get_text_rect(),
                 )?;
-            },
+            }
         }
         canvas.present(); // Present the new frame
 
-        // Wait for next frame
-        std::thread::sleep(Duration::from_secs_f32(DELTA_TIME));
+        delta_time = time.elapsed().as_secs_f32();
+        // PRINT THE FPS
+        // println!(
+        //     "DT = {} ms ({} FPS)",
+        //     (delta_time * 1000.0) as i32,
+        //     (1.0 / delta_time) as i32
+        // );
     }
 
-    
     Ok(())
 }

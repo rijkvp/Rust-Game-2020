@@ -25,11 +25,11 @@ impl Player
         }
     }
     
-    pub fn update(&mut self, evt_manager: &EventManager, pm: &mut PhysicsManager)
+    pub fn update(&mut self, evt_manager: &EventManager, pm: &mut PhysicsManager, delta_time: f32)
     {
         let mut movement = evt_manager.get_input_vector();
 
-        movement = movement.normalized() * 400.0 * crate::DELTA_TIME;
+        movement = movement.normalized() * 400.0 * delta_time;
 
         if !pm.check_collision(
         &AABB::from_center(self.position + Vector2{x: movement.x, y: 0.0}, 64.0, 64.0), &self.collider_id)

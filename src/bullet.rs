@@ -23,14 +23,14 @@ impl Bullet {
         }
     }
 
-    pub fn update(&mut self, pm: &mut PhysicsManager, enemies: &mut Vec<Enemy>) {
+    pub fn update(&mut self, pm: &mut PhysicsManager, enemies: &mut Vec<Enemy>, delta_time: f32) {
         if self.is_destroyed
         {
             return;
         }
 
-        self.position += self.direction * BULLET_SPEED * crate::DELTA_TIME;
-        self.lifetime += crate::DELTA_TIME;
+        self.position += self.direction * BULLET_SPEED * delta_time;
+        self.lifetime += delta_time;
         if self.lifetime >= MAX_LIFETIME
         {
             self.is_destroyed = true;
@@ -46,5 +46,11 @@ impl Bullet {
             }
             self.is_destroyed = true;
         }
+    }
+
+    // Get the rotation in degrees
+    pub fn get_rotation(&self) -> f32
+    {
+        self.direction.get_degrees()
     }
 }
