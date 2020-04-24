@@ -9,6 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Fix1
+      run: sudo apt-get update
     - name: Install SDL2
       run: sudo apt-get install libsdl2-dev
     - name: Install SDL2 TTF
