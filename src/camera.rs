@@ -16,8 +16,7 @@ impl Camera {
         if Vector2::distance(self.position, target) > 10.0
         {
 
-        }
-        println!("{}", delta_time * 0.1);             
+        }           
         let new_position = Vector2::lerp(self.position, target, delta_time * 1.6);
         let distance = (new_position - self.position).magnitude();
         if distance >= 0.1

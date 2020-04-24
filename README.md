@@ -11,5 +11,4 @@ The official git repo of dRUSTig (2020).
 
 We are going to create a 2D Top-Down roguelike game in Rust with SDL2 Rust bindings.
 
-
-Installation instuctions for windows: [install.md](docs/install.md).
+Installation instuctions for Windows & Linux: [install.md](docs/install.md).

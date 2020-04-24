@@ -5,7 +5,7 @@ use crate::vectors::Vector2;
 pub struct Player
 {
     pub position: Vector2,
-    collider_id: u32,
+    pub collider_id: u32,
     pub is_dead: bool,
     pub health: f32,
 }

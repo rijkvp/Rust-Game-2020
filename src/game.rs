@@ -13,7 +13,8 @@ mod tile;
 mod vectors;
 mod world;
 
-use crate::bullet::Bullet;
+use crate::enemy::EnemyType;
+use crate::bullet::{Bullet, BulletsManager};
 use crate::button::Button;
 use crate::camera::Camera;
 use crate::event_manager::EventManager;
@@ -54,7 +55,9 @@ fn game() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
     let texture_man = TextureManager::new(canvas.texture_creator());
-    let enemy_texture = texture_man.get_texture(String::from("assets/textures/enemy1.bmp"));
+    let enemy_texture_1 = texture_man.get_texture(String::from("assets/textures/enemy1.bmp"));
+    let enemy_texture_2 = texture_man.get_texture(String::from("assets/textures/enemy2.bmp"));
+
     let player_texture = texture_man.get_texture(String::from("assets/textures/player.bmp"));
     let bullet_texture = texture_man.get_texture(String::from("assets/textures/bullet.bmp"));
     let gun_texture = texture_man.get_texture(String::from("assets/textures/gun.bmp"));
@@ -105,15 +108,13 @@ fn game() -> Result<(), String> {
     // Gameplay elements
     let mut physics_manager = PhysicsManager::new();
     let mut player = Player::new(Vector2 { x: 0.0, y: 0.0 }, &mut physics_manager);
-    let mut bullets = Vec::<Bullet>::new();
+    let mut bullets_manager = BulletsManager::new();
     let mut fire_countdown = 0.0;
 
     let mut camera = Camera::new();
     let mut world = World::new(&texture_man);
     world.generate(&mut physics_manager);
     world.log_world();
-    println!("0,0 : {}", tile::tile_to_world_coords(0, 0, &world));
-    println!("50,50 : {}", tile::tile_to_world_coords(50, 50, &world));
 
     let mut delta_time: f32 = 0.0;
     let mut mouse_direction = Vector2::zero();
@@ -141,14 +142,14 @@ fn game() -> Result<(), String> {
                 mouse_direction =
                     camera.screen_to_world(evt_manager.mouse_position) - player.position;
                 player.update(&evt_manager, &mut physics_manager, delta_time);
-                let player_tile_pos = tile::world_to_tile_coords(
-                    player.position + Vector2 { x: 32.0, y: 32.0 },
-                    &world,
-                );
-                //println!("CHUNK: {}", player_tile_pos);
-                //world.set_surrounding(player_tile_pos);
-                // let surrounding = world.get_surrounding(player_tile_pos);
-                // println!("");
+                // let player_tile_pos = tile::world_to_tile_coords(
+                //     player.position + Vector2 { x: 32.0, y: 32.0 },
+                //     &world,
+                // );
+                //  println!("CHUNK: {}", player_tile_pos);
+                //  world.set_surrounding(player_tile_pos);
+                //  let surrounding = world.get_surrounding(player_tile_pos);
+                //  println!("");
                 // for (_y, row) in surrounding.iter().enumerate() {
                 //     println!("");
                 //     for (_x, col) in row.iter().enumerate() {
@@ -156,14 +157,11 @@ fn game() -> Result<(), String> {
                 //     }
                 // }
                 // println!("Player pos: {}", player.position);
-                world.update_enemies(&mut player, &mut physics_manager, delta_time);
+                world.update_enemies(&mut player, &mut physics_manager, &mut bullets_manager, delta_time);
                 if player.is_dead {
                     game_state = GameState::GAMEOVER;
                 }
-                for bullet in bullets.iter_mut() {
-                    bullet.update(&mut physics_manager, &mut world.enemies, delta_time);
-                }
-                bullets.retain(|bullet| !bullet.is_destroyed);
+                bullets_manager.update_bullets(delta_time, &mut physics_manager, &mut player, &mut world);
                 if fire_countdown > 0.0 {
                     fire_countdown -= delta_time;
                 }
@@ -171,7 +169,7 @@ fn game() -> Result<(), String> {
                     fire_countdown = 0.1;
                     mouse_direction = mouse_direction.normalized();
                     let position_offset = mouse_direction * 50.0;
-                    bullets.push(Bullet::new(
+                    bullets_manager.add_bullet(Bullet::new(
                         player.position + position_offset,
                         mouse_direction,
                     ));
@@ -238,11 +236,25 @@ fn game() -> Result<(), String> {
                     }
                 }
                 for enemy in world.enemies.iter() {
-                    canvas.copy(
-                        &enemy_texture,
-                        None,
-                        Rect::from_center(camera.world_to_screen(enemy.position), 64, 64),
-                    )?;
+                    match enemy.enemy_type
+                    {
+                        EnemyType::Range => {
+                            canvas.copy(
+                                &enemy_texture_2,
+                                None,
+                                Rect::from_center(camera.world_to_screen(enemy.position), 64, 64),
+                            )?;
+                        },
+                        EnemyType::Melee => {
+                            canvas.copy(
+                                &enemy_texture_1,
+                                None,
+                                Rect::from_center(camera.world_to_screen(enemy.position), 64, 64),
+                            )?;
+                        },
+
+                    }
+                    
                 }
                 canvas.copy(
                     &player_texture,
@@ -258,7 +270,7 @@ fn game() -> Result<(), String> {
                     false,
                     false,
                 )?;
-                for bullet in bullets.iter() {
+                for bullet in bullets_manager.bullets.iter() {
                     canvas.copy_ex(
                         &bullet_texture,
                         None,

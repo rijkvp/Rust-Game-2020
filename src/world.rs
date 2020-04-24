@@ -1,5 +1,6 @@
 extern crate rand;
 
+use crate::bullet::BulletsManager;
 use crate::player::Player;
 use crate::physics::PhysicsManager;
 use crate::enemy::Enemy;
@@ -124,10 +125,10 @@ impl<'a> World<'a> {
         }
     }
 
-    pub fn update_enemies(&mut self, player: &mut Player, pm: &mut PhysicsManager, delta_time: f32)
+    pub fn update_enemies(&mut self, player: &mut Player, pm: &mut PhysicsManager, bullets_manager: &mut BulletsManager, delta_time: f32)
     {
         for enemy in self.enemies.iter_mut() {
-            enemy.update(player, pm, delta_time);
+            enemy.update(player, pm, bullets_manager, delta_time);
         }
         self.enemies.retain(|enemy| !enemy.is_dead);
     }

@@ -1,3 +1,4 @@
+use crate::bullet::{Bullet, BulletsManager};
 use crate::player::Player;
 use crate::physics::*;
 use crate::vectors::Vector2;
@@ -8,7 +9,7 @@ const MIN_MOVE_DISTANCE: f32 = 200.0;
 const MELEE_ATTACK_RANGE: f32 = 80.0;
 const RANGE_ATTACK_RANGE: f32 = 500.0;
 const MELEE_DPS: f32 = 30.0;
-
+const FIRE_DELAY: f32 = 0.1;
 
 #[derive(Copy, Clone)]
 pub enum EnemyType
@@ -21,8 +22,9 @@ pub struct Enemy {
     pub position: Vector2,
     pub collider_id: u32,
     pub is_dead: bool,
-    enemy_type: EnemyType,
+    pub enemy_type: EnemyType,
     health: f32,
+    fire_timer: f32,
 }
 
 impl Enemy {
@@ -34,11 +36,12 @@ impl Enemy {
             collider_id,
             health: 100.0,
             is_dead: false,
-            enemy_type
+            enemy_type,
+            fire_timer: 0.0,
         }
     }
 
-    pub fn update(&mut self, target: &mut Player, pm: &mut PhysicsManager, delta_time: f32) {
+    pub fn update(&mut self, target: &mut Player, pm: &mut PhysicsManager, bullets_manager: &mut BulletsManager, delta_time: f32) {
         
         let distance_to_target = Vector2::distance(self.position, target.position);
 
@@ -96,7 +99,14 @@ impl Enemy {
             EnemyType::Range => {
                 if distance_to_target <= RANGE_ATTACK_RANGE
                 {
-                    // TODO; FIRE!
+                    self.fire_timer -= delta_time;
+                    if self.fire_timer <= 0.0
+                    {
+                        let dir = (target.position - self.position).normalized();
+                        let position_offset = dir * 60.0;
+                        bullets_manager.add_bullet(Bullet::new(self.position + position_offset, dir));
+                        self.fire_timer = FIRE_DELAY;
+                    }
                 }
             }
         }
