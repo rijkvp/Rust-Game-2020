@@ -10,7 +10,7 @@ edition = "2018"
 rand = "0.7.3"
 
 [dependencies.sdl2]
-version = "0.33"
+version = "0.34"
 default-features = false
 features = ["ttf"]
 
