@@ -1,21 +1,12 @@
-# Rust_Game_2020
+# Rust Game 2020
 
-## How to run
+![GitHub Actions](https://github.com/djog/Rust_Project_2020/workflows/Rust/badge.svg)
 
-To run the game, run the following command, which defaults to the `vulkan` graphics backend:
+The official git repo of dRUSTig (2020).
 
-```bash
-cargo run
-```
+![Our Logo](pictures/rust_repo.png)
+![Our Team Logo](pictures/team_dRUSTig_small.png)
 
-Windows and Linux users may explicitly choose `"vulkan"` with the following command:
+## Install
 
-```bash
-cargo run --no-default-features --features "vulkan"
-```
-
-Mac OS X users may explicitly choose `"metal"` with the following command:
-
-```bash
-cargo run --no-default-features --features "metal"
-```
+Installation instuctions for Windows & Linux: [install.md](docs/install.md).
