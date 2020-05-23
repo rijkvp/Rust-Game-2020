@@ -1,8 +1,10 @@
 mod game;
+mod systems;
 
 use crate::game::Game;
 
 use amethyst::core::transform::TransformBundle;
+use amethyst::input::{InputBundle, StringBindings};
 use amethyst::{
     prelude::*,
     renderer::{
@@ -21,6 +23,11 @@ fn main() -> amethyst::Result<()> {
 
     let assets_dir = app_root.join("assets/");
 
+    // Load input bundle
+    let binding_path = app_root.join("config").join("bindings.ron");
+    let input_bundle =
+        InputBundle::<StringBindings>::new().with_bindings_from_file(binding_path)?;
+
     let game_data = GameDataBuilder::default()
         .with_bundle(
             RenderingBundle::<DefaultBackend>::new()
@@ -30,7 +37,10 @@ fn main() -> amethyst::Result<()> {
                 )
                 .with_plugin(RenderFlat2D::default()),
         )?
-        .with_bundle(TransformBundle::new())?;
+        .with_bundle(TransformBundle::new())?
+        .with_bundle(input_bundle)?
+        .with(systems::MovementSystem, "movement_system", &["input_system"])
+        .with(systems::CameraFollowSystem, "camera_system", &["movement_system"]);
 
     let mut game = Application::new(assets_dir, Game, game_data)?;
     game.run();
