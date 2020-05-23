@@ -1,29 +1,17 @@
+use crate::components::*;
+use crate::vectors::Vector2;
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::{math::Vector3, transform::Transform},
-    ecs::prelude::{Component, DenseVecStorage, NullStorage},
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
-use rand::{thread_rng, Rng};
+use rand::{Rng};
+use crate::resources::CameraInfo;
 
 pub const ARENA_HEIGHT: f32 = 100.0;
 pub const ARENA_WIDTH: f32 = 100.0;
-pub const ENEMY_COUNT: u16 = 10;
-
-#[derive(Default)]
-pub struct Player;
-
-impl Component for Player {
-    type Storage = NullStorage<Self>;
-}
-
-#[derive(Default)]
-pub struct Enemy;
-
-impl Component for Enemy {
-    type Storage = NullStorage<Self>;
-}
+pub const ENEMY_COUNT: u16 = 1;
 
 pub struct Game;
 
@@ -38,6 +26,8 @@ impl SimpleState for Game {
         // NOTE: Not needed anymore when used by systems
         world.register::<Player>();
         world.register::<Enemy>();
+        world.register::<Physics>();
+        world.register::<Damageable>();
 
         initialise_players(world, sprite_sheet_handle);
     }
@@ -66,7 +56,31 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
             sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 0,
         })
+        .with(Physics {
+            physics_type: PhysicsType::Dynamic,
+            velocity: Vector2::default(),
+            drag: true,
+        })
         .build();
+
+    let mut projectile_transform = Transform::from(Vector3::new(0.0, 30.0, 0.0));
+    projectile_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
+    world
+        .create_entity()
+        .with(projectile_transform)
+        .with(Damageable { damage: 50.0 })
+        .with(SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 2,
+        })
+        .with(Physics {
+            physics_type: PhysicsType::Dynamic,
+            velocity: Vector2::new(0.0, 10.0),
+            drag: false,
+        })
+        .build();
+
+    world.insert(CameraInfo::default());
 
     let mut rng = rand::thread_rng();
     for _i in 0..ENEMY_COUNT {
@@ -84,6 +98,11 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
             .with(SpriteRender {
                 sprite_sheet: sprite_sheet_handle.clone(),
                 sprite_number: 1,
+            })
+            .with(Physics {
+                physics_type: PhysicsType::Dynamic,
+                velocity: Vector2::default(),
+                drag: true,
             })
             .build();
     }

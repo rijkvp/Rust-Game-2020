@@ -13,6 +13,12 @@ List((
             y: 0,
             width: 64,
             height: 64,
+        ),
+        (
+            x: 0,
+            y: 128,
+            width: 8,
+            height: 32,
         )
     ],
 ))
