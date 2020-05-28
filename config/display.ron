@@ -1,4 +1,4 @@
 (
   title: "Rust Game 2020",
-  dimensions: Some((500, 500)),
+  dimensions: Some((1920, 1080)),
 )

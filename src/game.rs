@@ -1,4 +1,5 @@
 use crate::components::*;
+use crate::resources::{CameraInfo, SpriteSheetHolder};
 use crate::vectors::Vector2;
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
@@ -6,12 +7,11 @@ use amethyst::{
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
-use rand::{Rng};
-use crate::resources::CameraInfo;
+use rand::Rng;
 
-pub const ARENA_HEIGHT: f32 = 100.0;
-pub const ARENA_WIDTH: f32 = 100.0;
-pub const ENEMY_COUNT: u16 = 1;
+pub const ARENA_HEIGHT: f32 = 1080.0;
+pub const ARENA_WIDTH: f32 = 1920.0;
+pub const ENEMY_COUNT: u16 = 20;
 
 pub struct Game;
 
@@ -19,7 +19,10 @@ impl SimpleState for Game {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         let world = data.world;
 
-        let sprite_sheet_handle = load_sprite_sheet(world);
+        let sprite_sheet = load_sprite_sheet(world);
+        world.insert(SpriteSheetHolder {
+            sprite_sheet: Some(sprite_sheet.clone()),
+        });
 
         initialise_camera(world);
         // Register components
@@ -28,8 +31,9 @@ impl SimpleState for Game {
         world.register::<Enemy>();
         world.register::<Physics>();
         world.register::<Damageable>();
+        world.register::<Lifetime>();
 
-        initialise_players(world, sprite_sheet_handle);
+        initialise_players(world, sprite_sheet);
     }
 }
 
@@ -39,7 +43,7 @@ fn initialise_camera(world: &mut World) {
 
     world
         .create_entity()
-        .with(Camera::standard_2d(ARENA_WIDTH, ARENA_HEIGHT))
+        .with(Camera::standard_2d(ARENA_WIDTH / 4.0, ARENA_HEIGHT / 4.0))
         .with(transform)
         .build();
 }
@@ -50,7 +54,7 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
     player_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
     world
         .create_entity()
-        .with(Player)
+        .with(Player::default())
         .with(player_transform)
         .with(SpriteRender {
             sprite_sheet: sprite_sheet_handle.clone(),
@@ -60,23 +64,7 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
             physics_type: PhysicsType::Dynamic,
             velocity: Vector2::default(),
             drag: true,
-        })
-        .build();
-
-    let mut projectile_transform = Transform::from(Vector3::new(0.0, 30.0, 0.0));
-    projectile_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
-    world
-        .create_entity()
-        .with(projectile_transform)
-        .with(Damageable { damage: 50.0 })
-        .with(SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 2,
-        })
-        .with(Physics {
-            physics_type: PhysicsType::Dynamic,
-            velocity: Vector2::new(0.0, 10.0),
-            drag: false,
+            layer: PhysicsLayer::None,
         })
         .build();
 
@@ -87,8 +75,8 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
         let mut enemy_transform = Transform::default();
         enemy_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
         enemy_transform.set_translation_xyz(
-            rng.gen_range(-ARENA_WIDTH / 2.0, ARENA_WIDTH / 2.0),
-            rng.gen_range(-ARENA_HEIGHT / 2.0, ARENA_HEIGHT / 2.0),
+            rng.gen_range(-ARENA_WIDTH / 4.0, ARENA_WIDTH / 4.0),
+            rng.gen_range(-ARENA_HEIGHT / 4.0, ARENA_HEIGHT / 4.0),
             0.0,
         );
         world
@@ -103,6 +91,11 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
                 physics_type: PhysicsType::Dynamic,
                 velocity: Vector2::default(),
                 drag: true,
+                layer: PhysicsLayer::None,
+            })
+            .with(Health {
+                hp: 100.0,
+                is_dead: false,
             })
             .build();
     }

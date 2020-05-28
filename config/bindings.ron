@@ -3,5 +3,7 @@
     "move_vertical": Emulated(pos: Key(W), neg: Key(S)),
     "move_horizontal": Emulated(pos: Key(D), neg: Key(A)),
   },
-  actions: {},
+  actions: {
+    "fire": [[Mouse(Left)]],
+  },
 )

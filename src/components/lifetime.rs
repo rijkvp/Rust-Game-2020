@@ -1,10 +1,11 @@
 use amethyst::ecs::prelude::{Component, DenseVecStorage};
 
+
 #[derive(Default)]
-pub struct Player {
-    pub fire_timer: f32 
+pub struct Lifetime {
+    pub lifetime: f32 
 }
 
-impl Component for Player {
+impl Component for Lifetime {
     type Storage = DenseVecStorage<Self>;
 }
