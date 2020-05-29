@@ -59,6 +59,11 @@ impl Vector2
     return (a-b).magnitude();
   }
 
+  pub fn get_radians(&self) -> f32
+  {
+      self.x.atan2(self.y)
+  }
+
   pub fn get_degrees(&self) -> f32
   {
       self.x.atan2(self.y) * 180.0 / std::f32::consts::PI

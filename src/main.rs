@@ -1,9 +1,13 @@
-mod game;
 mod systems;
 mod vectors;
 mod components;
 mod resources;
 
+// States
+mod menu;
+mod game;
+
+use crate::menu::Menu;
 use crate::game::Game;
 
 use amethyst::core::transform::TransformBundle;
@@ -15,6 +19,9 @@ use amethyst::{
         types::DefaultBackend,
         RenderingBundle,
     },
+    ui::{RenderUi, UiBundle},
+    assets::HotReloadBundle,
+    audio::AudioBundle,
     utils::application_root_dir,
 };
 
@@ -36,19 +43,25 @@ fn main() -> amethyst::Result<()> {
             RenderingBundle::<DefaultBackend>::new()
                 .with_plugin(
                     RenderToWindow::from_config_path(display_config_path)?
-                        .with_clear([0.0, 0.0, 0.0, 1.0]),
+                        .with_clear([0.212, 0.259, 0.404, 1.0]),
                 )
-                .with_plugin(RenderFlat2D::default()),
+                .with_plugin(RenderUi::default())
+                .with_plugin(RenderFlat2D::default())
         )?
         .with_bundle(TransformBundle::new())?
         .with_bundle(input_bundle)?
+        .with_bundle(UiBundle::<StringBindings>::new())?
+        .with_bundle(HotReloadBundle::default())?
+        .with_bundle(AudioBundle::default())?
         .with(systems::MovementSystem, "movement_system", &["input_system"])
         .with(systems::PhysicsSystem, "physics_system", &["movement_system"])
         .with(systems::CameraFollowSystem, "camera_system", &["physics_system"])
-        .with(systems::PlayerCombat, "player_combat_system", &["input_system"])
+        .with(systems::PlayerCombatSystem, "player_combat_system", &["input_system"])
+        .with(systems::HealthSystem, "health_system", &["physics_system"])
+        .with(systems::DestroySystem, "destroy_system", &["physics_system"])
         .with(systems::LifetimeSystem, "lifetime_system", &[]);
 
-    let mut game = Application::new(assets_dir, Game, game_data)?;
+    let mut game = Application::new(assets_dir, Menu::default(), game_data)?;
     game.run();
 
     Ok(())

@@ -22,5 +22,6 @@ impl<'s> System<'s> for LifetimeSystem
                 };
             }
         }
+        // println!("FPS: {} ", ((1.0 / time.delta_seconds()) as i32));
     }
 }

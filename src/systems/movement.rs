@@ -9,7 +9,7 @@ use crate::vectors::Vector2;
 
 pub struct MovementSystem;
 
-const MOVE_SPEED: f32 = 60.0;
+const MOVE_SPEED: f32 = 120.0;
 
 impl<'s> System<'s> for MovementSystem {
     type SystemData = (

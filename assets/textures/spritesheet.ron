@@ -18,7 +18,13 @@ List((
             x: 0,
             y: 128,
             width: 8,
-            height: 32,
+            height: 18,
+        ),
+        (
+            x: 64,
+            y: 128,
+            width: 192,
+            height: 128,
         )
     ],
 ))

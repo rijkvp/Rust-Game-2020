@@ -13,6 +13,7 @@ pub const ARENA_HEIGHT: f32 = 1080.0;
 pub const ARENA_WIDTH: f32 = 1920.0;
 pub const ENEMY_COUNT: u16 = 20;
 
+#[derive(Default)]
 pub struct Game;
 
 impl SimpleState for Game {
@@ -49,8 +50,20 @@ fn initialise_camera(world: &mut World) {
 }
 
 fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
+    
+    // Background
+    let mut bg_transform = Transform::default();
+    bg_transform.set_scale(Vector3::new(5.0, 5.0, 0.0));
+    bg_transform.set_translation_z(-100.0);
+    world.create_entity()
+    .with(bg_transform)
+    .with(SpriteRender {
+        sprite_sheet: sprite_sheet_handle.clone(),
+        sprite_number: 3,
+    }).build();
+    
+    // Player
     let mut player_transform = Transform::default();
-
     player_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
     world
         .create_entity()
@@ -60,18 +73,20 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
             sprite_sheet: sprite_sheet_handle.clone(),
             sprite_number: 0,
         })
-        .with(Physics {
-            physics_type: PhysicsType::Dynamic,
-            velocity: Vector2::default(),
-            drag: true,
-            layer: PhysicsLayer::None,
-        })
+        .with(Physics::with_id(
+            PhysicsType::Dynamic,
+            PhysicsLayer::None,
+            Vector2::default(),
+            true,
+            1
+        ))
+        .with(Health{hp: 100.0})
         .build();
 
     world.insert(CameraInfo::default());
 
     let mut rng = rand::thread_rng();
-    for _i in 0..ENEMY_COUNT {
+    for i in 0..ENEMY_COUNT {
         let mut enemy_transform = Transform::default();
         enemy_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
         enemy_transform.set_translation_xyz(
@@ -87,15 +102,15 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
                 sprite_sheet: sprite_sheet_handle.clone(),
                 sprite_number: 1,
             })
-            .with(Physics {
-                physics_type: PhysicsType::Dynamic,
-                velocity: Vector2::default(),
-                drag: true,
-                layer: PhysicsLayer::None,
-            })
+            .with(Physics::with_id(
+                PhysicsType::Dynamic,
+                PhysicsLayer::None,
+                Vector2::default(),
+                true,
+                2 + i
+            ))
             .with(Health {
-                hp: 100.0,
-                is_dead: false,
+                hp: 100.0
             })
             .build();
     }

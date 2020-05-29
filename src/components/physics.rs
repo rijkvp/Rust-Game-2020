@@ -41,6 +41,31 @@ pub struct Physics {
     pub layer: PhysicsLayer,
     pub velocity: Vector2,
     pub drag: bool,
+    pub id: u16
+}
+
+impl Physics {
+    pub fn simple(physics_type: PhysicsType, layer: PhysicsLayer, velocity: Vector2) -> Self
+    {
+        Self {
+            physics_type,
+            layer,
+            velocity,
+            drag: false,
+            id :0
+        }
+    }
+
+    pub fn with_id(physics_type: PhysicsType, layer: PhysicsLayer, start_velocity: Vector2, drag: bool, id: u16) -> Self
+    {
+        Self {
+            physics_type,
+            layer,
+            velocity: start_velocity,
+            drag,
+            id
+        }
+    }
 }
 
 impl Component for Physics {
