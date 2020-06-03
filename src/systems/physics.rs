@@ -98,20 +98,19 @@ impl<'s> System<'s> for PhysicsSystem {
     ) {
         const SCALE_MULTIPLIER: f32 = 50.0;
         let mut colliders = Vec::<AABB>::new();
-        // TEMP FIX
-        // TODO: Add colliders in proper way
-        // for (transf, phys) in (&transforms, &physics).join() {
-        //     colliders.push(AABB::from_center(
-        //         transf.translation().x,
-        //         transf.translation().y,
-        //         transf.scale().x * SCALE_MULTIPLIER,
-        //         transf.scale().y * SCALE_MULTIPLIER,
-        //         PhysicsLayer::collidable(phys.layer),
-        //         false,
-        //         0.0,
-        //     ));
-        // }
 
+        // Add colliders that aren't damageble
+        for (transf, phys, _) in (&transforms, &physics, !&damageables).join() {
+            colliders.push(AABB::create_normal(
+                transf.translation().x,
+                transf.translation().y,
+                transf.scale().x * SCALE_MULTIPLIER,
+                transf.scale().y * SCALE_MULTIPLIER,
+                PhysicsLayer::collidable(phys.layer),
+            ));
+        }
+
+        // Add collider that ARE damageable
         for (transf, phys, damageable) in (&transforms, &physics, &mut damageables).join() {
             let aabb = AABB::create_damageable(
                 transf.translation().x,
@@ -165,7 +164,7 @@ impl<'s> System<'s> for PhysicsSystem {
                     const DRAG: f32 = 10.0;
                     const DELTA_MULTIPLIER: f32 = 1.0 / 60.0;
                     if did_collide {
-                        phys.velocity = Vector2::default();
+                        phys.velocity = phys.velocity * 0.01;
                     }
                     if phys.drag {
                         phys.velocity = phys.velocity * (1.0 - DELTA_MULTIPLIER * DRAG);
