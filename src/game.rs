@@ -1,5 +1,6 @@
+use crate::resources::initialise_audio;
 use crate::components::*;
-use crate::resources::{CameraInfo, SpriteSheetHolder};
+use crate::resources::{GameInfo, SpriteSheetHolder};
 use crate::vectors::Vector2;
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
@@ -35,6 +36,7 @@ impl SimpleState for Game {
         world.register::<Lifetime>();
 
         initialise_players(world, sprite_sheet);
+        initialise_audio(world);
     }
 }
 
@@ -83,7 +85,7 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
         .with(Health{hp: 100.0})
         .build();
 
-    world.insert(CameraInfo::default());
+    world.insert(GameInfo::default());
 
     let mut rng = rand::thread_rng();
     for i in 0..ENEMY_COUNT {
@@ -96,7 +98,7 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
         );
         world
             .create_entity()
-            .with(Enemy)
+            .with(Enemy::default())
             .with(enemy_transform)
             .with(SpriteRender {
                 sprite_sheet: sprite_sheet_handle.clone(),

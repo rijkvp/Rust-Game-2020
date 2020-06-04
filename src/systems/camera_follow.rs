@@ -1,4 +1,4 @@
-use crate::resources::CameraInfo;
+use crate::resources::GameInfo;
 use crate::components::Player;
 use crate::vectors::Vector2;
 use amethyst::core::{
@@ -18,7 +18,7 @@ impl<'s> System<'s> for CameraFollowSystem {
         WriteStorage<'s, Transform>,
         ReadStorage<'s, Player>,
         ReadStorage<'s, Camera>,
-        Write<'s, CameraInfo>,
+        Write<'s, GameInfo>,
     );
 
     fn run(&mut self, (mut transforms, _players, cameras, mut camera_info): Self::SystemData) {

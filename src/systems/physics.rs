@@ -1,6 +1,12 @@
 use crate::components::{Damageable, Health, Physics, PhysicsLayer, PhysicsType};
+use crate::resources::{play_damage_sound, Sounds};
 use amethyst::core::Transform;
-use amethyst::ecs::{Join, System, WriteStorage};
+use amethyst::ecs::{Join, Read, ReadExpect, System, WriteStorage};
+use amethyst::{
+    assets::AssetStorage,
+    audio::{output::Output, Source},
+};
+use std::ops::Deref;
 
 use crate::vectors::Vector2;
 
@@ -90,11 +96,22 @@ impl<'s> System<'s> for PhysicsSystem {
         WriteStorage<'s, Transform>,
         WriteStorage<'s, Damageable>,
         WriteStorage<'s, Health>,
+        Read<'s, AssetStorage<Source>>,
+        ReadExpect<'s, Sounds>,
+        Option<Read<'s, Output>>,
     );
 
     fn run(
         &mut self,
-        (mut physics, mut transforms, mut damageables, mut healths): Self::SystemData,
+        (
+            mut physics,
+            mut transforms,
+            mut damageables,
+            mut healths,
+            asset_storage,
+            sounds,
+            audio_output,
+        ): Self::SystemData,
     ) {
         const SCALE_MULTIPLIER: f32 = 50.0;
         let mut colliders = Vec::<AABB>::new();
@@ -155,7 +172,7 @@ impl<'s> System<'s> for PhysicsSystem {
                                             target_id: phys.id,
                                         });
                                         d.destroyed = true;
-                                    },
+                                    }
                                     None => {}
                                 }
                             }
@@ -170,6 +187,7 @@ impl<'s> System<'s> for PhysicsSystem {
                         phys.velocity = phys.velocity * (1.0 - DELTA_MULTIPLIER * DRAG);
                     }
                     let translation = transf.translation();
+                    // TODO: Use tranf.translation_mut()
                     transf.set_translation(
                         translation + (phys.velocity * DELTA_MULTIPLIER).to_vector3(),
                     );
@@ -185,6 +203,11 @@ impl<'s> System<'s> for PhysicsSystem {
             for hit in &hits {
                 if hit.target_id == phys.id {
                     health.hp -= hit.damage;
+                    play_damage_sound(
+                        &*sounds,
+                        &asset_storage,
+                        audio_output.as_ref().map(|o| o.deref()),
+                    );
                 }
             }
         }

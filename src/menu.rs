@@ -1,9 +1,9 @@
+use crate::resources::initialise_audio;
 use amethyst::{
     ecs::prelude::Entity,
-    input::{is_close_requested, is_key_down},
+    input::{is_close_requested},
     prelude::*,
     ui::{UiCreator, UiEvent, UiEventType, UiFinder},
-    winit::VirtualKeyCode,
 };
 
 use crate::game::Game;
@@ -23,6 +23,7 @@ impl SimpleState for Menu {
         // create UI from prefab and save the reference.
         let world = data.world;
         println!("CREATE UI!");
+        initialise_audio(world);
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/menu.ron", ())));
     }

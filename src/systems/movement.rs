@@ -1,6 +1,6 @@
 use crate::components::Player;
 use crate::components::Physics;
-use crate::resources::CameraInfo;
+use crate::resources::GameInfo;
 use amethyst::core::Transform;
 use amethyst::ecs::{Join, Read, Write, ReadStorage, System, WriteStorage};
 use amethyst::input::{InputHandler, StringBindings};
@@ -17,7 +17,7 @@ impl<'s> System<'s> for MovementSystem {
         ReadStorage<'s, Player>,
         WriteStorage<'s, Physics>,
         Read<'s, InputHandler<StringBindings>>,
-        Write<'s, CameraInfo>,
+        Write<'s, GameInfo>,
     );
 
     fn run(&mut self, (mut transforms, players, mut physics, input, mut camera_info): Self::SystemData) {

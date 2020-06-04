@@ -7,6 +7,7 @@ mod resources;
 mod menu;
 mod game;
 
+use crate::resources::Music;
 use crate::menu::Menu;
 use crate::game::Game;
 
@@ -22,6 +23,7 @@ use amethyst::{
     ui::{RenderUi, UiBundle},
     assets::HotReloadBundle,
     audio::AudioBundle,
+    audio::DjSystemDesc,
     utils::application_root_dir,
 };
 
@@ -53,6 +55,11 @@ fn main() -> amethyst::Result<()> {
         .with_bundle(UiBundle::<StringBindings>::new())?
         .with_bundle(HotReloadBundle::default())?
         .with_bundle(AudioBundle::default())?
+        .with_system_desc(
+            DjSystemDesc::new(|music: &mut Music| music.music.next()),
+            "dj_system",
+            &[],
+        )
         .with(systems::MovementSystem, "movement_system", &["input_system"])
         .with(systems::PhysicsSystem, "physics_system", &["movement_system"])
         .with(systems::CameraFollowSystem, "camera_system", &["physics_system"])

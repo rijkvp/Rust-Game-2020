@@ -1,20 +1,26 @@
 use crate::components::{Damageable, Lifetime, Physics, PhysicsLayer, PhysicsType, Player};
-use crate::resources::CameraInfo;
+use crate::resources::GameInfo;
 use crate::resources::SpriteSheetHolder;
+use crate::resources::{play_fire_sound, Sounds};
 use crate::vectors::Vector2 as vec2;
 use amethyst::core::math::{Point3, Vector2, Vector3};
 use amethyst::core::timing::Time;
 use amethyst::core::Transform;
-use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{Entities, Join, Read,  ReadExpect, ReadStorage, System, WriteStorage};
 use amethyst::input::{InputHandler, StringBindings};
 use amethyst::renderer::{Camera, SpriteRender};
+use amethyst::{
+    assets::AssetStorage,
+    audio::{output::Output, Source},
+};
+use std::ops::Deref;
 
 pub struct PlayerCombatSystem;
 
 const FIRE_DELAY: f32 = 0.2;
 const PROJECTILE_SPEED: f32 = 200.0;
 const PROJECTILE_SPAWN_OFFSET: f32 = 16.0;
-const PROJECTILE_DAMAGE: f32 = 5.0;
+const PROJECTILE_DAMAGE: f32 = 40.0;
 
 impl<'s> System<'s> for PlayerCombatSystem {
     type SystemData = (
@@ -29,7 +35,10 @@ impl<'s> System<'s> for PlayerCombatSystem {
         Read<'s, InputHandler<StringBindings>>,
         Read<'s, Time>,
         ReadStorage<'s, Camera>,
-        Read<'s, CameraInfo>,
+        Read<'s, GameInfo>,
+        Read<'s, AssetStorage<Source>>,
+        ReadExpect<'s, Sounds>,
+        Option<Read<'s, Output>>,
     );
 
     fn run(
@@ -47,6 +56,9 @@ impl<'s> System<'s> for PlayerCombatSystem {
             time,
             cameras,
             camera_info,
+            asset_storage,
+            sounds,
+            audio_output,
         ): Self::SystemData,
     ) {
         let sprite_sheet = match &sprite_sheet_holder.sprite_sheet {
@@ -87,7 +99,13 @@ impl<'s> System<'s> for PlayerCombatSystem {
                     entities
                         .build_entity()
                         .with(projectile_transform, &mut transforms)
-                        .with(Damageable { damage: PROJECTILE_DAMAGE, destroyed: false }, &mut damageables)
+                        .with(
+                            Damageable {
+                                damage: PROJECTILE_DAMAGE,
+                                destroyed: false,
+                            },
+                            &mut damageables,
+                        )
                         .with(
                             SpriteRender {
                                 sprite_sheet: sprite_sheet.clone(),
@@ -105,6 +123,11 @@ impl<'s> System<'s> for PlayerCombatSystem {
                         )
                         .with(Lifetime { lifetime: 5.0 }, &mut lifetimes)
                         .build();
+                    play_fire_sound(
+                        &*sounds,
+                        &asset_storage,
+                        audio_output.as_ref().map(|o| o.deref()),
+                    )
                 }
             }
         }
