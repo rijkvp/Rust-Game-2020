@@ -22,7 +22,6 @@ impl SimpleState for Menu {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         // create UI from prefab and save the reference.
         let world = data.world;
-        println!("CREATE UI!");
         initialise_audio(world);
         self.ui_root =
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/menu.ron", ())));
@@ -52,7 +51,6 @@ impl SimpleState for Menu {
         match event {
             StateEvent::Window(event) => {
                 if is_close_requested(&event) {
-                    println!("[Trans::Quit] Quitting Application!");
                     Trans::Quit
                 } else {
                     Trans::None
