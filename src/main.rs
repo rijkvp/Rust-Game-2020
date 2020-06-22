@@ -67,7 +67,8 @@ fn main() -> amethyst::Result<()> {
         .with(systems::HealthSystem, "health_system", &["physics_system"])
         .with(systems::DestroySystem, "destroy_system", &["physics_system"])
         .with(systems::LifetimeSystem, "lifetime_system", &[])
-        .with(systems::AISystem, "ai_system", &[]);
+        .with(systems::AISystem, "ai_system", &[])
+        .with(systems::AICombatSystem, "ai_combat_system", &["ai_system"]);
 
     let mut game = Application::new(assets_dir, Menu::default(), game_data)?;
     game.run();

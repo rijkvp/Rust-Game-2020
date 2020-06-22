@@ -1,41 +1,33 @@
-use crate::components::{Damageable, Lifetime, Physics, PhysicsLayer, PhysicsType, Player};
+use crate::components::{Damageable, Enemy, EnemyType, Health, Lifetime, Physics, Player};
 use crate::resources::GameInfo;
-use crate::resources::SpriteSheetHolder;
 use crate::resources::{play_fire_sound, Sounds};
-use crate::vectors::Vector2 as vec2;
-use amethyst::core::math::{Point3, Vector2, Vector3};
-use amethyst::core::timing::Time;
-use amethyst::core::Transform;
-use amethyst::ecs::{Entities, Join, Read,  ReadExpect, ReadStorage, System, WriteStorage};
-use amethyst::input::{InputHandler, StringBindings};
-use amethyst::renderer::{Camera, SpriteRender};
+use crate::vectors::Vector2;
+use amethyst::core::{Time, Transform};
+use amethyst::ecs::{Entities, Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
+use amethyst::renderer::SpriteRender;
 use amethyst::{
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
 use std::ops::Deref;
 
-pub struct PlayerCombatSystem;
+pub struct AICombatSystem;
 
-const FIRE_DELAY: f32 = 0.2;
-const PROJECTILE_SPEED: f32 = 200.0;
-const PROJECTILE_SPAWN_OFFSET: f32 = 22.0;
-const PROJECTILE_DAMAGE: f32 = 40.0;
+const MELEE_DPS: f32 = 50.0;
 
-impl<'s> System<'s> for PlayerCombatSystem {
+impl<'s> System<'s> for AICombatSystem {
     type SystemData = (
-        WriteStorage<'s, Player>,
+        WriteStorage<'s, Enemy>,
         WriteStorage<'s, Transform>,
+        ReadStorage<'s, Player>,
+        WriteStorage<'s, Health>,
+        Read<'s, GameInfo>,
+        Read<'s, Time>,
+        Entities<'s>,
         WriteStorage<'s, Damageable>,
         WriteStorage<'s, SpriteRender>,
         WriteStorage<'s, Physics>,
         WriteStorage<'s, Lifetime>,
-        Entities<'s>,
-        Read<'s, SpriteSheetHolder>,
-        Read<'s, InputHandler<StringBindings>>,
-        Read<'s, Time>,
-        ReadStorage<'s, Camera>,
-        Read<'s, GameInfo>,
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
@@ -44,53 +36,36 @@ impl<'s> System<'s> for PlayerCombatSystem {
     fn run(
         &mut self,
         (
-            mut players,
+            mut enemies,
             mut transforms,
+            players,
+            mut healths,
+            game_info,
+            time,
+            entities,
             mut damageables,
             mut sprite_renderers,
             mut physics,
             mut lifetimes,
-            entities,
-            sprite_sheet_holder,
-            input_handler,
-            time,
-            cameras,
-            camera_info,
             asset_storage,
             sounds,
             audio_output,
         ): Self::SystemData,
     ) {
-        let sprite_sheet = match &sprite_sheet_holder.sprite_sheet {
-            None => return,
-            Some(s) => s,
-        };
-        let fire = input_handler.action_is_down("fire").unwrap_or(false);
-        let player_pos = camera_info.player_position;
-        let cam_pos = vec2::new(
-            camera_info.camera_transform.translation().x,
-            camera_info.camera_transform.translation().y,
-        );
-        let mut mouse_world_pos: vec2 = vec2::default();
-        if let Some((x, y)) = input_handler.mouse_position() {
-            for camera in (&cameras).join() {
-                let world_point = camera.projection().screen_to_world_point(
-                    Point3::new(x, y, 0.0),
-                    Vector2::new(1920.0, 1080.0), // TODO TEMP FIX
-                    &camera_info.camera_transform,
-                );
-                mouse_world_pos = vec2::new(world_point.x, world_point.y);
-            }
-        }
-        if fire {
-            for player in (&mut players).join() {
-                if player.fire_timer > 0.0 {
-                    player.fire_timer -= time.delta_seconds();
+        let mut total_melee_damage = 0.0;
+        for (enemy, transform) in (&mut enemies, &mut transforms).join() {
+            
+            match enemy.enemy_type {
+                EnemyType::Melee => {
+                    if enemy.can_attack {
+                        total_melee_damage += MELEE_DPS * time.delta_seconds();
+                    }
                 }
-                if player.fire_timer <= 0.0 {
-                    let direction = (mouse_world_pos - cam_pos).normalized();
-                    player.fire_timer += FIRE_DELAY;
-                    let spawn_position = player_pos + direction * PROJECTILE_SPAWN_OFFSET;
+                EnemyType::Range => {
+                    let target = game_info.player_position;
+                    let curr_pos = Vector2::new(transform.translation().x, transform.translation().y);
+            l       let direction = (target - curr_pos).normalized();
+                    let spawn_position = curr_pos + direction * PROJECTILE_SPAWN_OFFSET;
                     let mut projectile_transform =
                         Transform::from(Vector3::new(spawn_position.x, spawn_position.y, 0.0));
 
@@ -131,5 +106,9 @@ impl<'s> System<'s> for PlayerCombatSystem {
                 }
             }
         }
+        for (_player, health) in (&players, &mut healths).join() {
+            health.hp -= total_melee_damage;
+        }
+        // TODO: Deal the player total_melee_damage amount of damage
     }
 }

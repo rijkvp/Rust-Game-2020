@@ -179,6 +179,7 @@ impl<'s> System<'s> for PhysicsSystem {
                         }
                     }
                     const DRAG: f32 = 10.0;
+                    // TODO: Acctualy use delta time - will solve some performance issues
                     const DELTA_MULTIPLIER: f32 = 1.0 / 60.0;
                     if did_collide {
                         phys.velocity = phys.velocity * 0.01;

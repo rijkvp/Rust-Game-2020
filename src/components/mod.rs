@@ -1,5 +1,5 @@
 pub use self::damageable::Damageable;
-pub use self::enemy::Enemy;
+pub use self::enemy::*;
 pub use self::physics::*;
 pub use self::player::Player;
 pub use self::lifetime::Lifetime;

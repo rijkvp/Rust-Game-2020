@@ -98,7 +98,7 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
         );
         world
             .create_entity()
-            .with(Enemy::default())
+            .with(Enemy::random())
             .with(enemy_transform)
             .with(SpriteRender {
                 sprite_sheet: sprite_sheet_handle.clone(),

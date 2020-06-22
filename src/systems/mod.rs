@@ -6,6 +6,7 @@ pub use self::lifetime::LifetimeSystem;
 pub use self::health::HealthSystem;
 pub use self::destroy::DestroySystem;
 pub use self::ai::AISystem;
+pub use self::ai_combat::AICombatSystem;
 
 mod movement;
 mod camera_follow;
@@ -15,3 +16,4 @@ mod lifetime;
 mod health;
 mod destroy;
 mod ai;
+mod ai_combat;
