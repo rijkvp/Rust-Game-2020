@@ -1,4 +1,4 @@
-use crate::components::{Damageable, Enemy, EnemyType, Health, Lifetime, Physics, Player};
+use crate::components::{Damageable, Enemy, EnemyType, Health, Lifetime, Physics, Player, PhysicsLayer, PhysicsType};
 use crate::resources::GameInfo;
 use crate::resources::{play_fire_sound, Sounds};
 use crate::vectors::Vector2;
@@ -9,11 +9,19 @@ use amethyst::{
     assets::AssetStorage,
     audio::{output::Output, Source},
 };
+use amethyst::core::math::{Point3, Vector3};
 use std::ops::Deref;
+use crate::resources::SpriteSheetHolder;
 
 pub struct AICombatSystem;
 
 const MELEE_DPS: f32 = 50.0;
+
+
+const PROJECTILE_SPEED: f32 = 200.0;
+const PROJECTILE_SPAWN_OFFSET: f32 = 22.0;
+const PROJECTILE_DAMAGE: f32 = 40.0;
+
 
 impl<'s> System<'s> for AICombatSystem {
     type SystemData = (
@@ -31,6 +39,7 @@ impl<'s> System<'s> for AICombatSystem {
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
+        Read<'s, SpriteSheetHolder>
     );
 
     fn run(
@@ -50,21 +59,27 @@ impl<'s> System<'s> for AICombatSystem {
             asset_storage,
             sounds,
             audio_output,
+            sprite_sheet_holder,
         ): Self::SystemData,
     ) {
         let mut total_melee_damage = 0.0;
-        for (enemy, transform) in (&mut enemies, &mut transforms).join() {
+        let sprite_sheet = match &sprite_sheet_holder.sprite_sheet {
+            None => return,
+            Some(s) => s,
+        };
+        for (enemy, transform) in (&mut enemies, &transforms).join() {
             
             match enemy.enemy_type {
                 EnemyType::Melee => {
                     if enemy.can_attack {
                         total_melee_damage += MELEE_DPS * time.delta_seconds();
                     }
-                }
+                },
                 EnemyType::Range => {
+                    // TODO: INSTEAD OF DOUBLE MUTABLE CREATE A LIST OF THE POSITIONS AND DIRECTIONS & CREATE ALL OF THE PROJECTILES LATER
                     let target = game_info.player_position;
                     let curr_pos = Vector2::new(transform.translation().x, transform.translation().y);
-            l       let direction = (target - curr_pos).normalized();
+                    let direction = (target - curr_pos).normalized();
                     let spawn_position = curr_pos + direction * PROJECTILE_SPAWN_OFFSET;
                     let mut projectile_transform =
                         Transform::from(Vector3::new(spawn_position.x, spawn_position.y, 0.0));
@@ -103,8 +118,8 @@ impl<'s> System<'s> for AICombatSystem {
                         &asset_storage,
                         audio_output.as_ref().map(|o| o.deref()),
                     );
-                }
-            }
+                },
+            };
         }
         for (_player, health) in (&players, &mut healths).join() {
             health.hp -= total_melee_damage;
