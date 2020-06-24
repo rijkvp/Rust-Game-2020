@@ -11,9 +11,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Update Packages
       run: sudo apt-get update
-    - name: Fix error
-      run: sudo apt install libasound2-dev
     - name: Build
-      run: cargo build --verbose
+      run: cargo build
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test
