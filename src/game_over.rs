@@ -7,25 +7,23 @@ use amethyst::{
     ui::{UiCreator, UiEvent, UiEventType, UiFinder},
 };
 
-use crate::game::Game;
-
 const BUTTON_PLAY: &str = "play";
 const BUTTON_QUIT: &str = "quit";
 
 #[derive(Default, Debug)]
-pub struct Menu {
+pub struct GameOver {
     ui_root: Option<Entity>,
     button_play: Option<Entity>,
     button_quit: Option<Entity>,
 }
 
-impl SimpleState for Menu {
+impl SimpleState for GameOver {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
         // create UI from prefab and save the reference.
         let world = data.world;
         initialise_audio(world);
         self.ui_root =
-            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/menu.ron", ())));
+            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/game_over.ron", ())));
 
         let mut game_info = world.write_resource::<GameInfo>();
         game_info.game_state = GameState::Menu;
@@ -63,7 +61,7 @@ impl SimpleState for Menu {
                 target,
             }) => {
                 if Some(target) == self.button_play {
-                    return Trans::Switch(Box::new(Game::default()));
+                    return Trans::Quit;
                 } else if Some(target) == self.button_quit {
                     return Trans::Quit;
                 }

@@ -1,4 +1,4 @@
-pub use self::game_info::GameInfo;
+pub use self::game_info::*;
 pub use self::sprite_sheet::SpriteSheetHolder;
 pub use self::audio::*;
 

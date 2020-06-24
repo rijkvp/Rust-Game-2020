@@ -1,6 +1,6 @@
 use crate::resources::initialise_audio;
 use crate::components::*;
-use crate::resources::{GameInfo, SpriteSheetHolder};
+use crate::resources::{GameInfo, GameState, SpriteSheetHolder};
 use crate::vectors::Vector2;
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
@@ -9,6 +9,7 @@ use amethyst::{
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
 use rand::Rng;
+use crate::game_over::GameOver;
 
 pub const ARENA_HEIGHT: f32 = 1080.0;
 pub const ARENA_WIDTH: f32 = 1920.0;
@@ -37,6 +38,14 @@ impl SimpleState for Game {
 
         initialise_players(world, sprite_sheet);
         initialise_audio(world);
+    }
+
+    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        let game_info = data.world.read_resource::<GameInfo>();
+        match game_info.game_state {
+            GameState::GameOver => Trans::Switch(Box::new(GameOver::default())),
+            _ => Trans::None,
+        }
     }
 }
 

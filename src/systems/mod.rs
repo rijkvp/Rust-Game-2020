@@ -7,6 +7,7 @@ pub use self::health::HealthSystem;
 pub use self::destroy::DestroySystem;
 pub use self::ai::AISystem;
 pub use self::ai_combat::AICombatSystem;
+pub use self::game_over::GameOverSystem;
 
 mod movement;
 mod camera_follow;
@@ -17,3 +18,4 @@ mod health;
 mod destroy;
 mod ai;
 mod ai_combat;
+mod game_over;

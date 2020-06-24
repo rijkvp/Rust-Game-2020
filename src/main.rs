@@ -6,6 +6,7 @@ mod resources;
 // States
 mod menu;
 mod game;
+mod game_over;
 
 use crate::resources::Music;
 use crate::menu::Menu;
@@ -67,7 +68,8 @@ fn main() -> amethyst::Result<()> {
         .with(systems::DestroySystem, "destroy_system", &["physics_system"])
         .with(systems::LifetimeSystem, "lifetime_system", &[])
         .with(systems::AISystem, "ai_system", &[])
-        .with(systems::AICombatSystem, "ai_combat_system", &["ai_system"]);
+        .with(systems::AICombatSystem, "ai_combat_system", &["ai_system"])
+        .with(systems::GameOverSystem, "game_over_system", &["health_system"]);
 
     let mut game = Application::new(assets_dir, Menu::default(), game_data)?;
     game.run();

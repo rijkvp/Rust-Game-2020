@@ -1,0 +1,91 @@
+#![enable(implicit_some)]
+// Detailed field information can be found at https://docs.amethyst.rs/master/amethyst_ui/enum.UiWidget.html and related pages
+Container(
+    transform: (
+        id: "background",
+        anchor: Middle,
+        stretch: XY( x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+        width: 20.,
+        height: 20.,
+    ),
+    background: SolidColor(0.03, 0.03, 0.03, 1.0),
+    children: [
+
+        Container(
+            transform: (
+                id: "container_start",
+                y: -200,
+                width: 302.,
+                height: 72.,
+                anchor: Middle,
+            ),
+            background: SolidColor(0.070, 0.435, 0.490, 1.0),
+            children: [
+                Image(
+                    transform: (
+                        id: "logo",
+                        y: 400,
+                        width: 500.,
+                        height: 400.,
+                        tab_order: 0,
+                        anchor: Middle,
+                    ),
+                    image: Texture(File("textures/logo.png", ("IMAGE", ()))),
+                ),
+                Button(
+                    transform: (
+                        id: "play",
+                        width: 300.,
+                        height: 70.,
+                        tab_order: 1,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "PLAY GAME 123",
+                        font: File("font/Oxanium-Bold.ttf", ("TTF", ())),
+                        font_size: 50.,
+                        normal_text_color: (0.070, 0.435, 0.490, 1.0),
+                        normal_image: SolidColor(0, 0.075, 0.170, 1.),
+                        hover_image: SolidColor(0, 0.266, 0.458, 1.),
+                        press_image: SolidColor(0, 0.443, 0.760, 1.),
+                    )
+                ),
+            ]
+        ),
+
+
+        Container(
+            transform: (
+                id: "container_start",
+                y: -300,
+                width: 302.,
+                height: 72.,
+                anchor: Middle,
+            ),
+            background: SolidColor(0.070, 0.435, 0.490, 1.0),
+            children: [
+
+                Button(
+                    transform: (
+                        id: "quit",
+                        width: 300.,
+                        height: 70.,
+                        tab_order: 2,
+                        anchor: Middle,
+                        mouse_reactive: true,
+                    ),
+                    button: (
+                        text: "QUIT GAME",
+                        font: File("font/Oxanium-Bold.ttf", ("TTF", ())),
+                        font_size: 50.,
+                        normal_text_color: (0.070, 0.435, 0.490, 1.0),
+                        normal_image: SolidColor(0, 0.075, 0.170, 1.),
+                        hover_image: SolidColor(0, 0.266, 0.458, 1.),
+                        press_image: SolidColor(0, 0.443, 0.760, 1.),
+                    )
+                ),
+            ]
+        ),
+    ],
+)
