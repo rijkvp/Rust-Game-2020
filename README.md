@@ -2,13 +2,12 @@
 
 ![GitHub Actions](https://github.com/djog/Rust_Project_2020/workflows/Rust/badge.svg)
 
-The official git repo of dRUSTig (2020).
+A game made in Rust with the Amethyst game engine.
 
-![Our Logo](pictures/rust_repo.png)
-![Our Team Logo](pictures/team_dRUSTig_small.png)
+## Screenshots
 
-Colors: <https://coolors.co/002037-364267-126f7d-dd001d-eed12f>
+TODO: Add some screenshots
 
-## Install
+## Download
 
-Installation instuctions for Windows & Linux: [install.md](docs/install.md).
+Go to the [releases](https://github.com/Rijk-van-Putten/Rust-Game-2020/releases) to download & play the game.
