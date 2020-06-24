@@ -19,6 +19,7 @@ pub struct Enemy
 {
     pub enemy_type: EnemyType,
     pub can_attack: bool,
+    pub fire_timer: f32,
 }
 
 impl Component for Enemy {
@@ -36,6 +37,7 @@ impl Enemy {
         Self {
             enemy_type,
             can_attack: false,
+            fire_timer: 0.0,
         }
     }
 }

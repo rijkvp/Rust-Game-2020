@@ -1,7 +1,7 @@
 use crate::components::{Enemy, EnemyType, Physics};
 use crate::resources::GameInfo;
 use amethyst::core::Transform;
-use amethyst::ecs::{Join, Read, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{Join, Read, System, WriteStorage};
 
 use crate::vectors::Vector2;
 

@@ -9,7 +9,6 @@ mod game;
 
 use crate::resources::Music;
 use crate::menu::Menu;
-use crate::game::Game;
 
 use amethyst::core::transform::TransformBundle;
 use amethyst::input::{InputBundle, StringBindings};

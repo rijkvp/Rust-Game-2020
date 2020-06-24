@@ -187,10 +187,9 @@ impl<'s> System<'s> for PhysicsSystem {
                     if phys.drag {
                         phys.velocity = phys.velocity * (1.0 - DELTA_MULTIPLIER * DRAG);
                     }
-                    let translation = transf.translation();
-                    // TODO: Use tranf.translation_mut()
+                    let old_translation = transf.translation().clone();
                     transf.set_translation(
-                        translation + (phys.velocity * DELTA_MULTIPLIER).to_vector3(),
+                        old_translation + (phys.velocity * DELTA_MULTIPLIER).to_vector3(),
                     );
                 }
             }
