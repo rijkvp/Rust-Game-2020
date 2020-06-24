@@ -9,12 +9,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Fix1
+    - name: Update Packages
       run: sudo apt-get update
-    - name: Install SDL2
-      run: sudo apt-get install libsdl2-dev
-    - name: Install SDL2 TTF
-      run: sudo apt-get install libsdl2-ttf-dev
+    - name: Fix error
+      run: sudo apt install libasound2-dev
     - name: Build
       run: cargo build --verbose
     - name: Run tests

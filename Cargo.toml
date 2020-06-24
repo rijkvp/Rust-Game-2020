@@ -1,19 +1,15 @@
 [package]
-name = "rust_project_2020"
-version = "0.0.1"
-authors = ["Rijk van Putten"]
+name = "rust_game_2020"
+version = "0.1.0"
+authors = []
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
+amethyst = "0.15.0"
 rand = "0.7.3"
 
-[dependencies.sdl2]
-version = "0.34"
-default-features = false
-features = ["ttf"]
-
-[[bin]]
-name = "game"
-path = "src/game.rs"
+[features]
+default = ["vulkan"]
+empty = ["amethyst/empty"]
+metal = ["amethyst/metal"]
+vulkan = ["amethyst/vulkan"]
