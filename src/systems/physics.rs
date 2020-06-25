@@ -7,8 +7,11 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 use std::ops::Deref;
+use amethyst::core::Time;
 
 use crate::vectors::Vector2;
+
+const DRAG: f32 = 10.0;
 
 struct AABB<'a> {
     pub x1: f32,
@@ -99,6 +102,7 @@ impl<'s> System<'s> for PhysicsSystem {
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
+        Read<'s, Time>
     );
 
     fn run(
@@ -111,12 +115,13 @@ impl<'s> System<'s> for PhysicsSystem {
             asset_storage,
             sounds,
             audio_output,
+            time,
         ): Self::SystemData,
     ) {
         const SCALE_MULTIPLIER: f32 = 50.0;
         let mut colliders = Vec::<AABB>::new();
 
-        // Add colliders that aren't damageble
+        // Add colliders that are NOT damageble
         for (transf, phys, _) in (&transforms, &physics, !&damageables).join() {
             colliders.push(AABB::create_normal(
                 transf.translation().x,
@@ -178,18 +183,15 @@ impl<'s> System<'s> for PhysicsSystem {
                             }
                         }
                     }
-                    const DRAG: f32 = 10.0;
-                    // TODO: Acctualy use delta time - will solve some performance issues
-                    const DELTA_MULTIPLIER: f32 = 1.0 / 60.0;
                     if did_collide {
                         phys.velocity = phys.velocity * 0.01;
                     }
                     if phys.drag {
-                        phys.velocity = phys.velocity * (1.0 - DELTA_MULTIPLIER * DRAG);
+                        phys.velocity = phys.velocity * (1.0 - time.delta_seconds() * DRAG);
                     }
                     let old_translation = transf.translation().clone();
                     transf.set_translation(
-                        old_translation + (phys.velocity * DELTA_MULTIPLIER).to_vector3(),
+                        old_translation + (phys.velocity * time.delta_seconds()).to_vector3(),
                     );
                 }
             }

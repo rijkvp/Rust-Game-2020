@@ -19,9 +19,9 @@ pub struct AICombatSystem;
 
 const MELEE_DPS: f32 = 50.0;
 
-const PROJECTILE_SPEED: f32 = 200.0;
+const PROJECTILE_SPEED: f32 = 140.0;
 const PROJECTILE_SPAWN_OFFSET: f32 = 22.0;
-const PROJECTILE_DAMAGE: f32 = 40.0;
+const PROJECTILE_DAMAGE: f32 = 30.0;
 const FIRE_DELAY: f32 = 0.5;
 
 struct SpawnInfo {

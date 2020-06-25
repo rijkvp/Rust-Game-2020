@@ -1,22 +1,25 @@
-use crate::resources::initialise_audio;
 use crate::components::*;
+use crate::game_over::GameOver;
+use crate::resources::initialise_audio;
 use crate::resources::{GameInfo, GameState, SpriteSheetHolder};
 use crate::vectors::Vector2;
 use amethyst::{
     assets::{AssetStorage, Handle, Loader},
     core::{math::Vector3, transform::Transform},
+    ecs::prelude::Entity,
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
 };
 use rand::Rng;
-use crate::game_over::GameOver;
 
 pub const ARENA_HEIGHT: f32 = 1080.0;
 pub const ARENA_WIDTH: f32 = 1920.0;
-pub const ENEMY_COUNT: u16 = 20;
+pub const ENEMY_COUNT: u16 = 8;
 
 #[derive(Default)]
-pub struct Game;
+pub struct Game {
+    wave_text: Option<Entity>,
+}
 
 impl SimpleState for Game {
     fn on_start(&mut self, data: StateData<'_, GameData<'_, '_>>) {
@@ -47,6 +50,10 @@ impl SimpleState for Game {
             _ => Trans::None,
         }
     }
+
+    fn on_stop(&mut self, data: StateData<GameData>) {
+        data.world.delete_all();
+    }
 }
 
 fn initialise_camera(world: &mut World) {
@@ -61,18 +68,18 @@ fn initialise_camera(world: &mut World) {
 }
 
 fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet>) {
-    
     // Background
     let mut bg_transform = Transform::default();
-    bg_transform.set_scale(Vector3::new(5.0, 5.0, 0.0));
+    bg_transform.set_scale(Vector3::new(3.0, 3.0, 0.0));
     bg_transform.set_translation_z(-100.0);
-    world.create_entity()
-    .with(bg_transform)
-    .with(SpriteRender {
-        sprite_sheet: sprite_sheet_handle.clone(),
-        sprite_number: 3,
-    }).build();
-    
+    world
+        .create_entity()
+        .with(bg_transform)
+        .with(SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 3,
+        })
+        .build();
     // Player
     let mut player_transform = Transform::default();
     player_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
@@ -89,40 +96,61 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
             PhysicsLayer::None,
             Vector2::default(),
             true,
-            1
+            1,
         ))
-        .with(Health{hp: 100.0})
+        .with(Health { hp: 100.0 })
         .build();
 
     world.insert(GameInfo::default());
+
+    // Obstacles
+    let mut obstacle_transform = Transform::default();
+    obstacle_transform.set_translation_xyz(100.0, 100.0, 0.0);
+    obstacle_transform.set_scale(Vector3::new(0.4, 3.0, 0.0));
+    world
+        .create_entity()
+        .with(obstacle_transform)
+        .with(SpriteRender {
+            sprite_sheet: sprite_sheet_handle.clone(),
+            sprite_number: 5,
+        })
+        .with(Physics::simple(
+            PhysicsType::Static,
+            PhysicsLayer::None,
+            Vector2::default(),
+        ))
+        .build();
 
     let mut rng = rand::thread_rng();
     for i in 0..ENEMY_COUNT {
         let mut enemy_transform = Transform::default();
         enemy_transform.set_scale(Vector3::new(0.2, 0.2, 0.0));
         enemy_transform.set_translation_xyz(
-            rng.gen_range(-ARENA_WIDTH / 4.0, ARENA_WIDTH / 4.0),
-            rng.gen_range(-ARENA_HEIGHT / 4.0, ARENA_HEIGHT / 4.0),
+            rng.gen_range(-ARENA_WIDTH / 8.0, ARENA_WIDTH / 8.0),
+            rng.gen_range(-ARENA_HEIGHT / 8.0, ARENA_HEIGHT / 8.0),
             0.0,
         );
+        let enemy = Enemy::random();
+        let sprite_number = match enemy.enemy_type {
+            EnemyType::Melee => 1,
+            EnemyType::Range => 4,
+        };
         world
             .create_entity()
-            .with(Enemy::random())
+            .with(enemy)
             .with(enemy_transform)
             .with(SpriteRender {
                 sprite_sheet: sprite_sheet_handle.clone(),
-                sprite_number: 1,
+                sprite_number,
             })
             .with(Physics::with_id(
                 PhysicsType::Dynamic,
                 PhysicsLayer::None,
                 Vector2::default(),
                 true,
-                2 + i
+                2 + i,
             ))
-            .with(Health {
-                hp: 100.0
-            })
+            .with(Health { hp: 100.0 })
             .build();
     }
 }

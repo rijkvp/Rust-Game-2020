@@ -20,7 +20,7 @@ impl<'s> System<'s> for MovementSystem {
         Write<'s, GameInfo>,
     );
 
-    fn run(&mut self, (mut transforms, players, mut physics, input, mut camera_info): Self::SystemData) {
+    fn run(&mut self, (mut transforms, players, mut physics, input, mut game_info): Self::SystemData) {
         for (_player, physic, transform) in (&players, &mut physics, &mut transforms).join() {
             let input_h = match input.axis_value("move_horizontal") {
                 Some(value) => value,
@@ -32,9 +32,8 @@ impl<'s> System<'s> for MovementSystem {
             };
             let velocity = Vector2::new(input_h, input_v).normalized() * MOVE_SPEED;
             physic.velocity = velocity;
-
-            // TODO: Temp fix
-            camera_info.player_position = Vector2::new(transform.translation().x, transform.translation().y);
+            
+            game_info.player_position = Vector2::new(transform.translation().x, transform.translation().y);
         }
     }
 }

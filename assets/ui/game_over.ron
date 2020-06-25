@@ -30,11 +30,11 @@ Container(
                         tab_order: 0,
                         anchor: Middle,
                     ),
-                    image: Texture(File("textures/logo.png", ("IMAGE", ()))),
+                    image: Texture(File("textures/game_over.png", ("IMAGE", ()))),
                 ),
                 Button(
                     transform: (
-                        id: "play",
+                        id: "play_again",
                         width: 300.,
                         height: 70.,
                         tab_order: 1,
@@ -42,7 +42,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "PLAY GAME 123",
+                        text: "PLAY AGAIN",
                         font: File("font/Oxanium-Bold.ttf", ("TTF", ())),
                         font_size: 50.,
                         normal_text_color: (0.070, 0.435, 0.490, 1.0),
@@ -68,7 +68,7 @@ Container(
 
                 Button(
                     transform: (
-                        id: "quit",
+                        id: "menu",
                         width: 300.,
                         height: 70.,
                         tab_order: 2,
@@ -76,7 +76,7 @@ Container(
                         mouse_reactive: true,
                     ),
                     button: (
-                        text: "QUIT GAME",
+                        text: "MENU",
                         font: File("font/Oxanium-Bold.ttf", ("TTF", ())),
                         font_size: 50.,
                         normal_text_color: (0.070, 0.435, 0.490, 1.0),

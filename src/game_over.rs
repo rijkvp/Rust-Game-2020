@@ -6,15 +6,17 @@ use amethyst::{
     prelude::*,
     ui::{UiCreator, UiEvent, UiEventType, UiFinder},
 };
+use crate::menu::Menu;
+use crate::game::Game;
 
-const BUTTON_PLAY: &str = "play";
-const BUTTON_QUIT: &str = "quit";
+const BUTTON_PLAY_AGAIN: &str = "play_again";
+const BUTTON_MENU: &str = "menu";
 
 #[derive(Default, Debug)]
 pub struct GameOver {
     ui_root: Option<Entity>,
-    button_play: Option<Entity>,
-    button_quit: Option<Entity>,
+    button_play_again: Option<Entity>,
+    button_menu: Option<Entity>,
 }
 
 impl SimpleState for GameOver {
@@ -33,10 +35,10 @@ impl SimpleState for GameOver {
         // only search for buttons if they have not been found yet
         let StateData { world, .. } = state_data;
 
-        if self.button_play.is_none() || self.button_quit.is_none() {
+        if self.button_play_again.is_none() || self.button_menu.is_none() {
             world.exec(|ui_finder: UiFinder<'_>| {
-                self.button_play = ui_finder.find(BUTTON_PLAY);
-                self.button_quit = ui_finder.find(BUTTON_QUIT);
+                self.button_play_again = ui_finder.find(BUTTON_PLAY_AGAIN);
+                self.button_menu = ui_finder.find(BUTTON_MENU);
             });
         }
 
@@ -60,10 +62,10 @@ impl SimpleState for GameOver {
                 event_type: UiEventType::Click,
                 target,
             }) => {
-                if Some(target) == self.button_play {
-                    return Trans::Quit;
-                } else if Some(target) == self.button_quit {
-                    return Trans::Quit;
+                if Some(target) == self.button_play_again {
+                    return Trans::Switch(Box::new(Game::default()));
+                } else if Some(target) == self.button_menu {
+                    return Trans::Switch(Box::new(Menu::default()));
                 }
 
                 Trans::None
@@ -80,7 +82,7 @@ impl SimpleState for GameOver {
         }
 
         self.ui_root = None;
-        self.button_play = None;
-        self.button_quit = None;
+        self.button_play_again = None;
+        self.button_menu = None;
     }
 }
