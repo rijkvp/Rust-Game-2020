@@ -28,7 +28,10 @@ impl SimpleState for GameOver {
             Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/game_over.ron", ())));
 
         let mut game_info = world.write_resource::<GameInfo>();
-        game_info.game_state = GameState::Menu;
+        game_info.game_state = GameState::GameOver;
+        game_info.in_game = false;
+        game_info.wave = 0;
+        game_info.score = 0;
     }
 
     fn update(&mut self, state_data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {

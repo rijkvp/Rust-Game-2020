@@ -29,6 +29,7 @@ impl SimpleState for Menu {
 
         let mut game_info = world.write_resource::<GameInfo>();
         game_info.game_state = GameState::Menu;
+        game_info.in_game = false;
     }
 
     fn update(&mut self, state_data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {

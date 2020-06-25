@@ -8,6 +8,7 @@ pub use self::destroy::DestroySystem;
 pub use self::ai::AISystem;
 pub use self::ai_combat::AICombatSystem;
 pub use self::game_over::GameOverSystem;
+pub use self::wave::WaveSystem;
 
 mod movement;
 mod camera_follow;
@@ -19,3 +20,4 @@ mod destroy;
 mod ai;
 mod ai_combat;
 mod game_over;
+mod wave;

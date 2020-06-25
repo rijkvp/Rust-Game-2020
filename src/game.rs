@@ -44,7 +44,8 @@ impl SimpleState for Game {
     }
 
     fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        let game_info = data.world.read_resource::<GameInfo>();
+        let mut game_info = data.world.write_resource::<GameInfo>();
+        game_info.in_game = true;
         match game_info.game_state {
             GameState::GameOver => Trans::Switch(Box::new(GameOver::default())),
             _ => Trans::None,
@@ -102,24 +103,6 @@ fn initialise_players(world: &mut World, sprite_sheet_handle: Handle<SpriteSheet
         .build();
 
     world.insert(GameInfo::default());
-
-    // Obstacles
-    let mut obstacle_transform = Transform::default();
-    obstacle_transform.set_translation_xyz(100.0, 100.0, 0.0);
-    obstacle_transform.set_scale(Vector3::new(0.4, 3.0, 0.0));
-    world
-        .create_entity()
-        .with(obstacle_transform)
-        .with(SpriteRender {
-            sprite_sheet: sprite_sheet_handle.clone(),
-            sprite_number: 5,
-        })
-        .with(Physics::simple(
-            PhysicsType::Static,
-            PhysicsLayer::None,
-            Vector2::default(),
-        ))
-        .build();
 
     let mut rng = rand::thread_rng();
     for i in 0..ENEMY_COUNT {

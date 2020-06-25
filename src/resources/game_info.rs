@@ -19,5 +19,8 @@ pub struct GameInfo
 {
     pub game_state: GameState,
     pub camera_transform: Transform,
-    pub player_position: Vector2
+    pub player_position: Vector2,
+    pub in_game: bool,
+    pub wave: u16,
+    pub score: u32,
 }
