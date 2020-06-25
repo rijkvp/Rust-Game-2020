@@ -17,7 +17,7 @@ use std::ops::Deref;
 
 pub struct PlayerCombatSystem;
 
-const FIRE_DELAY: f32 = 0.2;
+const FIRE_DELAY: f32 = 0.3;
 const PROJECTILE_SPEED: f32 = 200.0;
 const PROJECTILE_SPAWN_OFFSET: f32 = 22.0;
 const PROJECTILE_DAMAGE: f32 = 40.0;
@@ -55,7 +55,7 @@ impl<'s> System<'s> for PlayerCombatSystem {
             input_handler,
             time,
             cameras,
-            camera_info,
+            game_info,
             asset_storage,
             sounds,
             audio_output,
@@ -66,10 +66,10 @@ impl<'s> System<'s> for PlayerCombatSystem {
             Some(s) => s,
         };
         let fire = input_handler.action_is_down("fire").unwrap_or(false);
-        let player_pos = camera_info.player_position;
+        let player_pos = game_info.player_position;
         let cam_pos = vec2::new(
-            camera_info.camera_transform.translation().x,
-            camera_info.camera_transform.translation().y,
+            game_info.camera_transform.translation().x,
+            game_info.camera_transform.translation().y,
         );
         let mut mouse_world_pos: vec2 = vec2::default();
         if let Some((x, y)) = input_handler.mouse_position() {
@@ -77,7 +77,7 @@ impl<'s> System<'s> for PlayerCombatSystem {
                 let world_point = camera.projection().screen_to_world_point(
                     Point3::new(x, y, 0.0),
                     Vector2::new(1920.0, 1080.0), // TODO TEMP FIX
-                    &camera_info.camera_transform,
+                    &game_info.camera_transform,
                 );
                 mouse_world_pos = vec2::new(world_point.x, world_point.y);
             }
@@ -89,7 +89,7 @@ impl<'s> System<'s> for PlayerCombatSystem {
                 }
                 if player.fire_timer <= 0.0 {
                     let direction = (mouse_world_pos - cam_pos).normalized();
-                    player.fire_timer += FIRE_DELAY;
+                    player.fire_timer += FIRE_DELAY - game_info.get_wave_multiplier() * 0.03; // Fire faster every wave
                     let spawn_position = player_pos + direction * PROJECTILE_SPAWN_OFFSET;
                     let mut projectile_transform =
                         Transform::from(Vector3::new(spawn_position.x, spawn_position.y, 0.0));
@@ -101,7 +101,7 @@ impl<'s> System<'s> for PlayerCombatSystem {
                         .with(projectile_transform, &mut transforms)
                         .with(
                             Damageable {
-                                damage: PROJECTILE_DAMAGE,
+                                damage: PROJECTILE_DAMAGE + game_info.get_wave_multiplier() * 8.0,
                                 destroyed: false,
                                 damage_type: DamageType::Enemy,
                             },

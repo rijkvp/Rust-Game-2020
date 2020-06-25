@@ -11,7 +11,7 @@ const AI_MOVE_SPEED: f32 = 40.0;
 const MELEE_MIN_DIST: f32 = 16.0;
 const MELEE_ATTACK_DIST: f32 = 20.0;
 const RANGE_MIN_DIST: f32 = 80.0;
-const MAX_VIEW_DIST: f32 = 200.0;
+const MAX_VIEW_DIST: f32 = 230.0;
 
 impl<'s> System<'s> for AISystem {
     type SystemData = (

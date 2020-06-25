@@ -5,7 +5,7 @@ use amethyst::core::Transform;
 pub enum GameState {
     Menu,
     Game,
-    GameOver
+    GameOver,
 }
 
 impl Default for GameState {
@@ -15,12 +15,22 @@ impl Default for GameState {
 }
 
 #[derive(Default)]
-pub struct GameInfo 
-{
+pub struct GameInfo {
     pub game_state: GameState,
     pub camera_transform: Transform,
     pub player_position: Vector2,
     pub in_game: bool,
     pub wave: u16,
     pub score: u32,
+}
+
+impl GameInfo {
+    pub fn get_wave_multiplier(&self) -> f32 {
+        let mut wave_multiplier: f32 = 0.0;
+        if self.wave > 4 {
+            4.0
+        } else {
+            self.wave as f32
+        }
+    }
 }

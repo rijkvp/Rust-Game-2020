@@ -1,5 +1,6 @@
 use crate::components::{
-    Damageable, DamageType, Enemy, EnemyType, Health, Lifetime, Physics, PhysicsLayer, PhysicsType, Player,
+    DamageType, Damageable, Enemy, EnemyType, Health, Lifetime, Physics, PhysicsLayer, PhysicsType,
+    Player,
 };
 use crate::resources::GameInfo;
 use crate::resources::SpriteSheetHolder;
@@ -74,35 +75,39 @@ impl<'s> System<'s> for AICombatSystem {
             Some(s) => s,
         };
         let mut spawn_projectiles = Vec::<SpawnInfo>::new();
+
         for (enemy, transform) in (&mut enemies, &transforms).join() {
-            match enemy.enemy_type {
-                EnemyType::Melee => {
-                    if enemy.can_attack {
+            if enemy.can_attack {
+                enemy.can_attack = false;
+                match enemy.enemy_type {
+                    EnemyType::Melee => {
                         total_melee_damage += MELEE_DPS * time.delta_seconds();
                     }
-                }
-                EnemyType::Range => {
-                    if enemy.fire_timer > 0.0 {
-                        enemy.fire_timer -= time.delta_seconds();
+                    EnemyType::Range => {
+                        if enemy.fire_timer > 0.0 {
+                            enemy.fire_timer -= time.delta_seconds();
+                        }
+                        if enemy.fire_timer <= 0.0 {
+                            enemy.fire_timer += FIRE_DELAY;
+                            let target = game_info.player_position;
+                            let curr_pos =
+                                Vector2::new(transform.translation().x, transform.translation().y);
+                            let direction = (target - curr_pos).normalized();
+                            let spawn_position = curr_pos + direction * PROJECTILE_SPAWN_OFFSET;
+                            spawn_projectiles.push(SpawnInfo {
+                                position: spawn_position,
+                                direction,
+                            });
+                        }
                     }
-                    if enemy.fire_timer <= 0.0 {
-                        enemy.fire_timer += FIRE_DELAY;
-                        let target = game_info.player_position;
-                        let curr_pos =
-                            Vector2::new(transform.translation().x, transform.translation().y);
-                        let direction = (target - curr_pos).normalized();
-                        let spawn_position = curr_pos + direction * PROJECTILE_SPAWN_OFFSET;
-                        spawn_projectiles.push(SpawnInfo {
-                            position: spawn_position,
-                            direction,
-                        });
-                    }
-                }
-            };
+                };
+            }
         }
+
         for (_player, health) in (&players, &mut healths).join() {
             health.hp -= total_melee_damage;
         }
+
         for projectile_info in spawn_projectiles.iter() {
             let mut projectile_transform = Transform::from(Vector3::new(
                 projectile_info.position.x,

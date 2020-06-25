@@ -1,11 +1,11 @@
 use crate::game::ARENA_WIDTH;
 use crate::game::ARENA_HEIGHT;
-use crate::components::{Enemy, EnemyType, Health, Physics, PhysicsType, PhysicsLayer};
+use crate::components::{Enemy, EnemyType, Health, Physics, PhysicsType, PhysicsLayer, Player};
 use crate::resources::{GameInfo, SpriteSheetHolder};
 use crate::vectors::Vector2;
 
-use amethyst::core::math::{Point3, Vector3};
-use amethyst::ecs::{Entities, Join, Read, System, Write, WriteStorage};
+use amethyst::core::math::{Vector3};
+use amethyst::ecs::{Entities, Join, Read, System, Write, ReadStorage, WriteStorage};
 use amethyst::core::Transform;
 use amethyst::renderer::SpriteRender;
 
@@ -25,6 +25,7 @@ impl<'s> System<'s> for WaveSystem {
         Read<'s, SpriteSheetHolder>,
         WriteStorage<'s, Physics>,
         WriteStorage<'s, Health>,
+        ReadStorage<'s, Player>,
     );
 
     fn run(
@@ -38,6 +39,7 @@ impl<'s> System<'s> for WaveSystem {
             sprite_sheet_holder,
             mut physics,
             mut healths,
+            players,
         ): Self::SystemData,
     ) {
         let mut enemy_count = 0u16;
@@ -84,6 +86,11 @@ impl<'s> System<'s> for WaveSystem {
                     ), &mut physics)
                     .with(Health { hp: 100.0 }, &mut healths)
                     .build();
+            }
+            // Heal player 
+            for (_player, health) in (&players, &mut healths).join()
+            {
+                health.hp = 100.0 + game_info.get_wave_multiplier() * 20.0 // More health every wave
             }
         }
     }
