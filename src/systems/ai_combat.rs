@@ -1,5 +1,5 @@
 use crate::components::{
-    Damageable, Enemy, EnemyType, Health, Lifetime, Physics, PhysicsLayer, PhysicsType, Player,
+    Damageable, DamageType, Enemy, EnemyType, Health, Lifetime, Physics, PhysicsLayer, PhysicsType, Player,
 };
 use crate::resources::GameInfo;
 use crate::resources::SpriteSheetHolder;
@@ -17,12 +17,12 @@ use std::ops::Deref;
 
 pub struct AICombatSystem;
 
-const MELEE_DPS: f32 = 50.0;
+const MELEE_DPS: f32 = 20.0;
 
 const PROJECTILE_SPEED: f32 = 140.0;
 const PROJECTILE_SPAWN_OFFSET: f32 = 22.0;
 const PROJECTILE_DAMAGE: f32 = 30.0;
-const FIRE_DELAY: f32 = 0.5;
+const FIRE_DELAY: f32 = 1.5;
 
 struct SpawnInfo {
     position: Vector2,
@@ -119,13 +119,14 @@ impl<'s> System<'s> for AICombatSystem {
                     Damageable {
                         damage: PROJECTILE_DAMAGE,
                         destroyed: false,
+                        damage_type: DamageType::Player,
                     },
                     &mut damageables,
                 )
                 .with(
                     SpriteRender {
                         sprite_sheet: sprite_sheet.clone(),
-                        sprite_number: 2,
+                        sprite_number: 5,
                     },
                     &mut sprite_renderers,
                 )

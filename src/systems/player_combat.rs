@@ -1,4 +1,4 @@
-use crate::components::{Damageable, Lifetime, Physics, PhysicsLayer, PhysicsType, Player};
+use crate::components::{Damageable, DamageType, Lifetime, Physics, PhysicsLayer, PhysicsType, Player};
 use crate::resources::GameInfo;
 use crate::resources::SpriteSheetHolder;
 use crate::resources::{play_fire_sound, Sounds};
@@ -103,6 +103,7 @@ impl<'s> System<'s> for PlayerCombatSystem {
                             Damageable {
                                 damage: PROJECTILE_DAMAGE,
                                 destroyed: false,
+                                damage_type: DamageType::Enemy,
                             },
                             &mut damageables,
                         )

@@ -1,5 +1,6 @@
-use crate::components::{Damageable, Health, Physics, PhysicsLayer, PhysicsType};
+use crate::components::{DamageType, Damageable, Health, Physics, PhysicsLayer, PhysicsType};
 use crate::resources::{play_damage_sound, Sounds};
+use amethyst::core::Time;
 use amethyst::core::Transform;
 use amethyst::ecs::{Join, Read, ReadExpect, System, WriteStorage};
 use amethyst::{
@@ -7,7 +8,6 @@ use amethyst::{
     audio::{output::Output, Source},
 };
 use std::ops::Deref;
-use amethyst::core::Time;
 
 use crate::vectors::Vector2;
 
@@ -102,7 +102,7 @@ impl<'s> System<'s> for PhysicsSystem {
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
-        Read<'s, Time>
+        Read<'s, Time>,
     );
 
     fn run(
@@ -172,11 +172,19 @@ impl<'s> System<'s> for PhysicsSystem {
                                 did_collide = collider1.do_collision && collider2.do_collision;
                                 match &mut collider2.damageable {
                                     Some(d) => {
-                                        hits.push(HitInfo {
-                                            damage: d.damage,
-                                            target_id: phys.id,
-                                        });
-                                        d.destroyed = true;
+                                        // TEMP FIX (REALLY BAD CODE)
+                                        // Make sure that enemies don't damage other enemies
+                                        // ONLY DAMAGE IF phys.id = 1 AND damageable.damage_type = Player
+                                        // OR phys.id > 1 AND damageable.damage_type = Enemy
+                                        if phys.id == 1 && d.damage_type == DamageType::Player
+                                            || phys.id > 1 && d.damage_type == DamageType::Enemy
+                                        {
+                                            d.destroyed = true;
+                                            hits.push(HitInfo {
+                                                damage: d.damage,
+                                                target_id: phys.id,
+                                            });
+                                        }
                                     }
                                     None => {}
                                 }

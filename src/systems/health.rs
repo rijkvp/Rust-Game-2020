@@ -1,6 +1,6 @@
 use crate::components::Health;
-use crate::resources::{play_die_sound, Sounds};
-use amethyst::ecs::{Entities, Join, Read, ReadExpect, System, WriteStorage};
+use crate::resources::{play_die_sound, Sounds, GameInfo};
+use amethyst::ecs::{Entities, Join, Read, Write, ReadExpect, System, WriteStorage};
 use amethyst::{
     assets::AssetStorage,
     audio::{output::Output, Source},
@@ -16,11 +16,12 @@ impl<'s> System<'s> for HealthSystem {
         Read<'s, AssetStorage<Source>>,
         ReadExpect<'s, Sounds>,
         Option<Read<'s, Output>>,
+        Write<'s, GameInfo>
     );
 
     fn run(
         &mut self,
-        (mut healths, entities, asset_storage, sounds, audio_output): Self::SystemData,
+        (mut healths, entities, asset_storage, sounds, audio_output, mut game_info): Self::SystemData,
     ) {
         for (e, health) in (&*entities, &mut healths).join() {
             if health.hp <= 0.0 {
@@ -30,6 +31,7 @@ impl<'s> System<'s> for HealthSystem {
                     }
                     Ok(_t) => {}
                 };
+                game_info.score += 1;
                 play_die_sound(
                     &*sounds,
                     &asset_storage,

@@ -1,4 +1,4 @@
-pub use self::damageable::Damageable;
+pub use self::damageable::*;
 pub use self::enemy::*;
 pub use self::physics::*;
 pub use self::player::Player;
