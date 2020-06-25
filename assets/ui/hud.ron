@@ -1,0 +1,49 @@
+#![enable(implicit_some)]
+// Detailed field information can be found at https://docs.amethyst.rs/master/amethyst_ui/enum.UiWidget.html and related pages
+Container(
+      transform: (
+        id: "background",
+        anchor: Middle,
+        stretch: XY( x_margin: 0., y_margin: 0., keep_aspect_ratio: false),
+        width: 20.,
+        height: 20.,
+    ),
+    children: [
+        Label(
+            transform: (
+                id: "score_text",
+                x: 100.,
+                y: -40,
+                width: 300.,
+                height: 50.,
+                tab_order: 1,
+                anchor: TopLeft,
+                transparent: true,
+            ),
+            text: (
+                text: "SCORE: 0",
+                font: File("font/Oxanium-Bold.ttf", ("TTF", ())),
+                font_size: 32.,
+                color: (1.0, 1.0, 1.0, 1.0),
+            )
+        ),
+        Label(
+            transform: (
+                id: "wave_text",
+                x: -100.,
+                y: -40,
+                width: 300.,
+                height: 50.,
+                tab_order: 2,
+                anchor: TopRight,
+                transparent: true,
+            ),
+            text: (
+                text: "WAVE: 1",
+                font: File("font/Oxanium-Bold.ttf", ("TTF", ())),
+                font_size: 32.,
+                color: (1.0, 1.0, 1.0, 1.0),
+            )
+        ),    
+    ],
+)

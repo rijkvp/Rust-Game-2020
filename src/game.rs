@@ -9,6 +9,7 @@ use amethyst::{
     ecs::prelude::Entity,
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
+    ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
 };
 use rand::Rng;
 
@@ -18,6 +19,8 @@ pub const ENEMY_COUNT: u16 = 8;
 
 #[derive(Default)]
 pub struct Game {
+    ui_root: Option<Entity>,
+    score_text: Option<Entity>,
     wave_text: Option<Entity>,
 }
 
@@ -41,18 +44,51 @@ impl SimpleState for Game {
 
         initialise_players(world, sprite_sheet);
         initialise_audio(world);
+
+        self.ui_root =
+            Some(world.exec(|mut creator: UiCreator<'_>| creator.create("ui/hud.ron", ())));
     }
 
-    fn update(&mut self, data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
-        let mut game_info = data.world.write_resource::<GameInfo>();
+    fn update(&mut self, state_data: &mut StateData<'_, GameData<'_, '_>>) -> SimpleTrans {
+        let StateData { world, .. } = state_data;
+
+        if self.score_text.is_none() {
+            world.exec(|finder: UiFinder<'_>| {
+                if let Some(entity) = finder.find("score_text") {
+                    self.score_text = Some(entity);
+                }
+            });
+        }
+        if self.wave_text.is_none() {
+            world.exec(|finder: UiFinder| {
+                if let Some(entity) = finder.find("wave_text") {
+                    self.wave_text = Some(entity);
+                }
+            });
+        }
+
+        let mut ui_text = world.write_storage::<UiText>();
+        let mut game_info = world.write_resource::<GameInfo>();
+
+        if let Some(score_text) = self.score_text.and_then(|entity| ui_text.get_mut(entity)) {
+            score_text.text = format!("SCORE: {}", game_info.score);
+        }
+        if let Some(wave_text) = self.wave_text.and_then(|entity| ui_text.get_mut(entity)) {
+            wave_text.text = format!("WAVE: {}", game_info.wave+1);
+        }
+
         game_info.in_game = true;
         match game_info.game_state {
             GameState::GameOver => Trans::Switch(Box::new(GameOver::default())),
             _ => Trans::None,
         }
+        
     }
 
     fn on_stop(&mut self, data: StateData<GameData>) {
+        self.ui_root = None;
+        self.score_text = None;
+        self.wave_text = None;
         data.world.delete_all();
     }
 }

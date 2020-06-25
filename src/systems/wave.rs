@@ -46,13 +46,9 @@ impl<'s> System<'s> for WaveSystem {
         }
         if enemy_count == 0 && game_info.in_game {
             game_info.wave += 1;
-            // Spawn new wave
+            // Spawn a new wave
             let enemy_count =
                 START_ENEMY_COUNT + (ENEMY_WAVE_MULTIPLIER * game_info.wave as f32).ceil() as u16;
-            println!(
-                "SPAWNING WAVE {} WITH {} ENEMIES!",
-                game_info.wave, enemy_count
-            );
             let sprite_sheet = match &sprite_sheet_holder.sprite_sheet {
                 None => return,
                 Some(s) => s,
