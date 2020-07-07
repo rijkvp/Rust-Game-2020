@@ -1,13 +1,17 @@
 # Rust Game 2020
 
-![GitHub Actions](https://github.com/djog/Rust_Project_2020/workflows/Rust/badge.svg)
-
-A game made in Rust with the Amethyst game engine.
+A simple top-down shooter game made in Rust with the Amethyst game engine.
 
 ## Screenshots
 
-TODO: Add some screenshots
+![menu](pics/menu.png)
+![game](pics/game1.png)
+![game](pics/game2.png)
+![game](pics/game3.png)
+![gameover](pics/gameover.png)
 
-## Download
+## How to play
 
-Go to the [releases](https://github.com/Rijk-van-Putten/Rust-Game-2020/releases) to download & play the game.
+New Version: Clone & run with: cargo run --release.
+
+Old Version: Go to the [releases](https://github.com/Rijk-van-Putten/Rust-Game-2020/releases) to download & play the game.
