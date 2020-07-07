@@ -4,17 +4,11 @@ use crate::components::{
 };
 use crate::resources::GameInfo;
 use crate::resources::SpriteSheetHolder;
-use crate::resources::{play_fire_sound, Sounds};
 use crate::vectors::Vector2;
 use amethyst::core::math::Vector3;
 use amethyst::core::{Time, Transform};
-use amethyst::ecs::{Entities, Join, Read, ReadExpect, ReadStorage, System, WriteStorage};
+use amethyst::ecs::{Entities, Join, Read, ReadStorage, System, WriteStorage};
 use amethyst::renderer::SpriteRender;
-use amethyst::{
-    assets::AssetStorage,
-    audio::{output::Output, Source},
-};
-use std::ops::Deref;
 
 pub struct AICombatSystem;
 
@@ -43,9 +37,6 @@ impl<'s> System<'s> for AICombatSystem {
         WriteStorage<'s, SpriteRender>,
         WriteStorage<'s, Physics>,
         WriteStorage<'s, Lifetime>,
-        Read<'s, AssetStorage<Source>>,
-        ReadExpect<'s, Sounds>,
-        Option<Read<'s, Output>>,
         Read<'s, SpriteSheetHolder>,
     );
 
@@ -63,9 +54,6 @@ impl<'s> System<'s> for AICombatSystem {
             mut sprite_renderers,
             mut physics,
             mut lifetimes,
-            asset_storage,
-            sounds,
-            audio_output,
             sprite_sheet_holder,
         ): Self::SystemData,
     ) {
@@ -145,12 +133,6 @@ impl<'s> System<'s> for AICombatSystem {
                 )
                 .with(Lifetime { lifetime: 5.0 }, &mut lifetimes)
                 .build();
-            // TODO: Huge lag spikes & sounds horrible!
-            // play_fire_sound(
-            //     &*sounds,
-            //     &asset_storage,
-            //     audio_output.as_ref().map(|o| o.deref()),
-            // );
         }
     }
 }

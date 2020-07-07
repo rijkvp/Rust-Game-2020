@@ -4,7 +4,7 @@ use amethyst::core::Transform;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum GameState {
     Menu,
-    Game,
+    _Game,
     GameOver,
 }
 
@@ -26,7 +26,6 @@ pub struct GameInfo {
 
 impl GameInfo {
     pub fn get_wave_multiplier(&self) -> f32 {
-        let mut wave_multiplier: f32 = 0.0;
         if self.wave > 4 {
             4.0
         } else {

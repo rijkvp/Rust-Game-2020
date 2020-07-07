@@ -54,7 +54,7 @@ impl Vector2
     return a + (b-a) * t;
   }
 
-  pub fn distance(a: Vector2, b: Vector2) -> f32
+  pub fn _distance(a: Vector2, b: Vector2) -> f32
   {
     return (a-b).magnitude();
   }
@@ -64,7 +64,7 @@ impl Vector2
       self.x.atan2(self.y)
   }
 
-  pub fn get_degrees(&self) -> f32
+  pub fn _get_degrees(&self) -> f32
   {
       self.x.atan2(self.y) * 180.0 / std::f32::consts::PI
   }

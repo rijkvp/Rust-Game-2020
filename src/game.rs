@@ -9,7 +9,7 @@ use amethyst::{
     ecs::prelude::Entity,
     prelude::*,
     renderer::{Camera, ImageFormat, SpriteRender, SpriteSheet, SpriteSheetFormat, Texture},
-    ui::{UiCreator, UiEvent, UiEventType, UiFinder, UiText},
+    ui::{UiCreator, UiFinder, UiText},
 };
 use rand::Rng;
 
